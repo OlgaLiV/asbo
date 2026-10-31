@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ASBO | Olga's AI, ask her anything</title>
+  <meta name="description" content="ASBO is AI Studio by Olga. Meet Asbo, Olga's robot assistant, and ask about her AI agents, projects and prices.">
+  <link rel="icon" href="assets/logo-mark.webp">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&family=Sora:wght@300;600&family=Michroma&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="asbo.css">
+  <script>document.documentElement.classList.add('js-intro');</script>
+</head>
+<body>
+  <a class="skip" href="#ask">Skip to the chat</a>
+
+  <!-- Entrance: logo loader, then Asbo assembles from pixels (asbo.js) -->
+  <div class="intro" aria-hidden="true">
+    <div class="intro-mark">
+      <svg class="intro-ring" viewBox="0 0 120 120"><circle cx="60" cy="60" r="56"/></svg>
+      <img src="assets/logo-mark.webp" alt="" width="84" height="84">
+    </div>
+    <p class="intro-word">asbo</p>
+    <p class="intro-count mono" data-count>000</p>
+  </div>
+  <canvas class="fx" aria-hidden="true"></canvas>
+
+  <header class="id">
+    <a href="./" class="id-logo" aria-label="ASBO, AI Studio by Olga, home"><img src="assets/logo-mark.webp" alt="" width="64" height="64"></a>
+    <div>
+      <a href="./" class="id-name">olga.</a>
+      <p class="mono">QA engineer · AI builder · Tampa Bay</p>
+    </div>
+  </header>
+
+  <nav class="pillnav" aria-label="Main">
+    <button class="icon-btn" type="button" data-open="terminal" aria-label="Open the chat terminal">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/></svg>
+    </button>
+    <a class="icon-btn" href="https://calendly.com/ai-studio-by-olga" target="_blank" rel="noopener" aria-label="Book a Free Consultation">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></svg>
+    </a>
+    <a href="./" class="pill active" aria-current="page">Home</a>
+    <button class="pill" type="button" data-open="work">Work</button>
+    <button class="pill" type="button" data-open="about">About</button>
+    <button class="pill" type="button" data-open="contact">Contact</button>
+  </nav>
+
+  <main class="stage">
+    <div class="brand-col">
+      <h1 class="wordmark" aria-label="ASBO, AI Studio by Olga">asbo</h1>
+      <p class="expand" aria-hidden="true"><b>A</b>I <b>S</b>tudio <b>b</b>y <b>O</b>lga</p>
+
+      <div class="toolbar">
+        <button class="tool" type="button" data-toggle="track" aria-pressed="true" title="Turn off cursor tracking" aria-label="Turn off cursor tracking">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg>
+        </button>
+        <button class="tool" type="button" data-toggle="motion" aria-pressed="true" title="Pause animations" aria-label="Pause animations">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14M16 5v14"/></svg>
+        </button>
+        <button class="tool" type="button" data-open="terminal" title="Open the chat terminal" aria-label="Open the chat terminal">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 7l5 5-5 5M12 17h7"/></svg>
+        </button>
+      </div>
+
+      <div class="now">
+        <button class="chip-link" type="button" data-open="work">enrolla ↗</button>
+        <span class="mono">an admissions crm, live demo</span>
+        <p class="mono latest">now building <button type="button" data-open="work">nataliya fillers →</button></p>
+      </div>
+    </div>
+
+    <!-- Asbo, the robot girl. Parts are moved by asbo.js -->
+    <div class="robot-wrap">
+      <svg class="robot" viewBox="0 0 400 500" role="img" aria-label="Asbo, a robot girl who follows your cursor">
+        <defs>
+          <radialGradient id="shellG" cx=".34" cy=".28" r=".95"><stop offset="0" stop-color="#ffffff"/><stop offset=".45" stop-color="#f2f4fb"/><stop offset="1" stop-color="#c7cde6"/></radialGradient>
+          <linearGradient id="hairG" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#94a0dc"/><stop offset=".55" stop-color="#6573b4"/><stop offset="1" stop-color="#3f4b84"/></linearGradient>
+          <linearGradient id="visorG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2a3160"/><stop offset="1" stop-color="#0a0d1f"/></linearGradient>
+          <radialGradient id="floorG"><stop offset="0" stop-color="#00e3f8" stop-opacity=".45"/><stop offset=".5" stop-color="#5e6da8" stop-opacity=".18"/><stop offset="1" stop-color="#5e6da8" stop-opacity="0"/></radialGradient>
+          <filter id="glowF" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+          <filter id="softF" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="10" stdDeviation="10" flood-color="#12152a" flood-opacity=".18"/></filter>
+        </defs>
+
+        <ellipse class="floor" cx="200" cy="474" rx="110" ry="16" fill="url(#floorG)"/>
+
+        <g class="rb-all">
+          <!-- arms -->
+          <g class="rb-arm-l">
+            <rect x="104" y="318" width="28" height="92" rx="14" fill="url(#shellG)" filter="url(#softF)"/>
+            <circle cx="118" cy="398" r="12" fill="#5e6da8"/>
+          </g>
+          <g class="rb-arm-r">
+            <rect x="268" y="318" width="28" height="92" rx="14" fill="url(#shellG)" filter="url(#softF)"/>
+            <circle cx="282" cy="398" r="12" fill="#5e6da8"/>
+          </g>
+
+          <!-- body -->
+          <g class="rb-body">
+            <path d="M200 300 C254 300 278 340 274 376 C270 414 242 438 200 438 C158 438 130 414 126 376 C122 340 146 300 200 300 Z" fill="url(#shellG)" filter="url(#softF)"/>
+            <ellipse cx="170" cy="334" rx="24" ry="11" fill="#fff" opacity=".9" transform="rotate(-22 170 334)"/>
+            <path d="M146 404 Q200 424 254 404" stroke="#d3d8ee" stroke-width="3" fill="none" stroke-linecap="round"/>
+            <rect x="172" y="352" width="56" height="26" rx="13" fill="#12152a"/>
+            <circle class="rb-heart" cx="200" cy="365" r="6" fill="#00e3f8" filter="url(#glowF)"/>
+          </g>
+
+          <!-- neck joint -->
+          <ellipse cx="200" cy="292" rx="24" ry="7" fill="#5e6da8"/>
+          <ellipse cx="200" cy="292" rx="14" ry="3" fill="#00e3f8" opacity=".8" filter="url(#glowF)"/>
+
+          <!-- head -->
+          <g class="rb-head">
+            <g class="rb-tail">
+              <path d="M286 138 C352 112 380 190 358 252 C347 284 324 302 306 292 C334 256 340 196 298 172 Z" fill="url(#hairG)"/>
+              <path d="M312 140 C348 140 362 186 352 226" stroke="#fff" stroke-opacity=".35" stroke-width="4" fill="none" stroke-linecap="round"/>
+            </g>
+
+            <circle cx="102" cy="196" r="19" fill="#5e6da8"/><circle cx="102" cy="196" r="9" fill="none" stroke="#00e3f8" stroke-width="3" filter="url(#glowF)"/>
+            <circle cx="298" cy="196" r="19" fill="#5e6da8"/><circle cx="298" cy="196" r="9" fill="none" stroke="#00e3f8" stroke-width="3" filter="url(#glowF)"/>
+
+            <rect x="104" y="100" width="192" height="180" rx="84" fill="url(#shellG)" filter="url(#softF)"/>
+            <path d="M104 180 C100 120 146 92 200 92 C258 92 300 122 296 180 C282 148 252 130 216 132 C228 142 230 152 224 160 C198 136 150 134 122 158 C114 165 108 172 104 180 Z" fill="url(#hairG)"/>
+            <path d="M136 118 C160 102 196 98 226 104" stroke="#fff" stroke-opacity=".4" stroke-width="4" fill="none" stroke-linecap="round"/>
+            <rect x="236" y="116" width="28" height="9" rx="4.5" fill="#b21f71" transform="rotate(-24 250 120)"/>
+            <circle cx="268" cy="110" r="4" fill="#d23b8c"/>
+
+            <rect x="124" y="160" width="152" height="88" rx="44" fill="url(#visorG)"/>
+            <path d="M146 168 L196 168 L166 240 L136 240 Z" fill="#fff" opacity=".06"/>
+
+            <g class="rb-eyes" filter="url(#glowF)">
+              <g class="rb-eye-l">
+                <rect class="open" x="157" y="186" width="24" height="36" rx="12" fill="#00e3f8"/>
+                <path class="happy" d="M155 210 Q169 190 183 210" stroke="#00e3f8" stroke-width="7" fill="none" stroke-linecap="round"/>
+                <path d="M157 188 l-8 -6 M163 184 l-4 -8" stroke="#00e3f8" stroke-width="2.5" stroke-linecap="round"/>
+              </g>
+              <g class="rb-eye-r">
+                <rect class="open" x="219" y="186" width="24" height="36" rx="12" fill="#00e3f8"/>
+                <path class="happy" d="M217 210 Q231 190 245 210" stroke="#00e3f8" stroke-width="7" fill="none" stroke-linecap="round"/>
+                <path d="M243 188 l8 -6 M237 184 l4 -8" stroke="#00e3f8" stroke-width="2.5" stroke-linecap="round"/>
+              </g>
+            </g>
+            <path class="rb-mouth" d="M190 232 Q200 239 210 232" stroke="#00e3f8" stroke-width="3.5" fill="none" stroke-linecap="round" filter="url(#glowF)"/>
+            <ellipse class="rb-cheek" cx="142" cy="232" rx="11" ry="5.5" fill="#e0643a"/>
+            <ellipse class="rb-cheek" cx="258" cy="232" rx="11" ry="5.5" fill="#e0643a"/>
+
+            <path d="M200 92 V64" stroke="#5e6da8" stroke-width="4" stroke-linecap="round"/>
+            <circle class="rb-orb" cx="200" cy="58" r="9" fill="#e0643a" filter="url(#glowF)"/>
+          </g>
+        </g>
+      </svg>
+    </div>
+
+    <section id="ask" class="speech" aria-label="Talk to Asbo">
+      <p class="mono who">asbo</p>
+      <p class="line" aria-live="polite"><span data-line></span><i class="caret"></i></p>
+      <div class="chips">
+        <button type="button" class="chip" data-q="what has she built?">› what has she built?</button>
+        <button type="button" class="chip" data-q="why test before launch?">› why test before launch?</button>
+        <button type="button" class="chip" data-q="can she help my business?">› can she help my business?</button>
+      </div>
+      <p class="mono hint">press <kbd>/</kbd> to type a question, or <button type="button" data-open="terminal">click here</button></p>
+    </section>
+
+    <aside class="card-now">
+      <span class="lang mono" aria-hidden="true">EN<br>RU UA</span>
+      <div>
+        <p class="mono"><span class="bars" aria-hidden="true"><i></i><i></i><i></i></span>speaks</p>
+        <p class="t">English, Russian, Ukrainian</p>
+        <p class="s mono">and so do the assistants</p>
+      </div>
+    </aside>
+  </main>
+
+  <!-- Terminal -->
+  <div class="overlay" data-panel="terminal" hidden>
+    <div class="terminal" role="dialog" aria-modal="true" aria-label="Chat with Asbo">
+      <div class="term-side" aria-hidden="true"><i class="r"></i><i class="y"></i><i class="g"></i><span>asbo_ai · terminal</span><b>live</b></div>
+      <div class="term-main">
+        <button class="close" type="button" data-close aria-label="Close">×</button>
+        <div class="term-log" data-log>
+          <p class="sys">asbo v1.0 · olga's assistant online</p>
+          <p class="sys dim">type a question, or one of: <span>/work /about /prices /contact /book /clear</span></p>
+          <p class="dim">// hello. I answer from olga's own notes, so ask me about her work.</p>
+        </div>
+        <form class="term-input" data-form>
+          <label for="q">guest@asbo:~$</label>
+          <input id="q" name="q" autocomplete="off" spellcheck="false" placeholder="what has she built?">
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Work -->
+  <div class="overlay" data-panel="work" hidden>
+    <section class="sheet" role="dialog" aria-modal="true" aria-labelledby="work-h">
+      <button class="close" type="button" data-close aria-label="Close">×</button>
+      <p class="mono kicker">/work</p>
+      <h2 id="work-h">things olga has built</h2>
+      <div class="projects">
+        <article>
+          <img src="assets/ai-studio-home.jpg" alt="AI Studio by Olga website homepage" loading="lazy" width="1400" height="875">
+          <p class="mono meta">01 · website + mobile app</p>
+          <h3>AI Studio by Olga</h3>
+          <p>A three-language site and an iOS and Android app. Leads land in a database, her inbox and her phone, with a private admin side for clients and projects.</p>
+          <p class="mono tags">next.js · expo · supabase · calendly</p>
+        </article>
+        <article>
+          <img src="assets/enrolla-dashboard.jpg" alt="Enrolla admissions dashboard with reply times and stage counts" loading="lazy" width="1040" height="640">
+          <p class="mono meta">02 · admissions crm · <a href="https://enrolla-five.vercel.app" target="_blank" rel="noopener">live demo ↗</a></p>
+          <h3>Enrolla</h3>
+          <p>Every college enquiry goes to one counsellor within seconds, with a drafted first reply and reminders that stop when the student replies. Checked with automated end-to-end tests.</p>
+          <p class="mono tags">next.js · prisma · postgres · playwright</p>
+        </article>
+        <article>
+          <img src="assets/nataliya-home.jpg" alt="Nataliya Fillers real estate website homepage" loading="lazy" width="1440" height="830">
+          <p class="mono meta">03 · client website · <span class="wip">in progress</span></p>
+          <h3>Nataliya Fillers</h3>
+          <p>Her first client project: a site for a Tampa Bay realtor known in the Russian-speaking community for being available and genuinely invested in her clients.</p>
+          <p class="mono tags">next.js · bilingual · coastal design</p>
+        </article>
+        <article class="textonly">
+          <p class="mono meta">04 · ai assistant prototype</p>
+          <h3>Real estate lead assistant</h3>
+          <p>Answers new enquiries, asks the questions an agent would ask, and hands over a ready lead with budget, area and timing. Includes the full script and a market comparison.</p>
+          <p class="mono meta" style="margin-top:18px">also built</p>
+          <h3>Enquiry reply assistant</h3>
+          <p>Writes the first reply to booking enquiries by email or WhatsApp, following a company's reply procedure and current price list.</p>
+        </article>
+      </div>
+    </section>
+  </div>
+
+  <!-- About -->
+  <div class="overlay" data-panel="about" hidden>
+    <section class="sheet narrow" role="dialog" aria-modal="true" aria-labelledby="about-h">
+      <button class="close" type="button" data-close aria-label="Close">×</button>
+      <p class="mono kicker">/about</p>
+      <div class="about">
+        <img src="assets/olga.jpg" alt="Portrait of Olga" width="433" height="520" loading="lazy">
+        <div>
+          <h2 id="about-h">hi, i'm olga.</h2>
+          <p>For nine years I worked as a QA automation engineer, the person whose job is to break software before customers do. That habit is why I started ASBO, AI Studio by Olga.</p>
+          <p>I build AI agents and automations for salons, studios, real estate offices and local businesses: assistants that answer the 9 p.m. message, book the right slot and send the reminder on the right day. I listen first, build around the tools you already use, and test everything before launch.</p>
+          <ul class="facts mono"><li><b>9 yrs</b> qa automation</li><li><b>3</b> languages</li><li><b>1</b> person, start to launch</li></ul>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Contact -->
+  <div class="overlay" data-panel="contact" hidden>
+    <section class="sheet narrow" role="dialog" aria-modal="true" aria-labelledby="contact-h">
+      <button class="close" type="button" data-close aria-label="Close">×</button>
+      <p class="mono kicker">/contact</p>
+      <h2 id="contact-h">tell me what takes too much of your time.</h2>
+      <p>I'll suggest where to start, and what it would cost. The first conversation is free.</p>
+      <div class="actions">
+        <a class="btn" href="https://calendly.com/ai-studio-by-olga" target="_blank" rel="noopener">Book a Free Consultation</a>
+        <a class="btn ghost" href="mailto:ai.studio.by.olga@gmail.com">ai.studio.by.olga@gmail.com</a>
+      </div>
+      <p class="mono links"><a href="https://www.instagram.com/ai.studio.by.olga/" target="_blank" rel="noopener">instagram ↗</a> <a href="https://github.com/OlgaLiV" target="_blank" rel="noopener">github ↗</a></p>
+    </section>
+  </div>
+
+  <script src="asbo.js"></script>
+</body>
+</html>
