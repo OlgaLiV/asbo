@@ -276,11 +276,19 @@ const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 const DYNAMIC = '.rb-all, .rb-head, .rb-eyes, .rb-tail, .rb-body, .rb-arm-l, .rb-arm-r, .floor, .rb-eye-l, .rb-eye-r';
 const SPARKS = ['#00e3f8', '#5e6da8', '#e0643a', '#b21f71', '#ffffff', '#94a0dc'];
 
+// Size the canvas to its real on-screen box (on phones this can differ from innerHeight while the
+// browser toolbar shows or hides), and always clear the whole pixel buffer, not just the visible part.
 function sizeFx() {
   const dpr = Math.min(window.devicePixelRatio || 1, 2);
-  fx.width = Math.round(innerWidth * dpr);
-  fx.height = Math.round(innerHeight * dpr);
+  fx.width = Math.round((fx.clientWidth || innerWidth) * dpr);
+  fx.height = Math.round((fx.clientHeight || innerHeight) * dpr);
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+function clearFx() {
+  ctx.save();
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.clearRect(0, 0, fx.width, fx.height);
+  ctx.restore();
 }
 sizeFx();
 window.addEventListener('resize', sizeFx);
@@ -340,7 +348,7 @@ function assemble({ data, w, h, rect }, onLanding) {
   return new Promise((resolve) => {
     function tick(now) {
       const el = now - start;
-      ctx.clearRect(0, 0, innerWidth, innerHeight);
+      clearFx();
       for (const p of parts) {
         const k = clamp((el - p.delay) / p.dur, 0, 1);
         const e = easeInOut(k);
@@ -363,7 +371,8 @@ function assemble({ data, w, h, rect }, onLanding) {
 function fadeFx(ms) {
   fx.style.transition = `opacity ${ms}ms ease`;
   fx.style.opacity = '0';
-  return wait(ms).then(() => { ctx.clearRect(0, 0, innerWidth, innerHeight); fx.style.transition = 'none'; fx.style.opacity = '1'; });
+  // the canvas is only used for the entrance, so remove it once the pixels have dissolved
+  return wait(ms).then(() => { clearFx(); window.removeEventListener('resize', sizeFx); fx.remove(); });
 }
 
 function ready() {
