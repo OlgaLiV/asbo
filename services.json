@@ -49,7 +49,7 @@
         "billing": "one-time",
         "short": "Up to 5 pages, custom-designed, with galleries, maps and analytics.",
         "best": "An established local business that needs room for services, a gallery, an about page and contact.",
-        "bestDraft": true,
+        "bestDraft": false,
         "included": [
           "Up to 5 individual pages",
           "Custom design tailored to the business",
@@ -90,7 +90,7 @@
         "billing": "one-time",
         "short": "For businesses requiring more advanced functionality.",
         "best": "A business that needs a blog or CMS, booking or CRM connections, or functionality built for its own process.",
-        "bestDraft": true,
+        "bestDraft": false,
         "includedTitle": "Possible features",
         "included": [
           "Advanced custom design and layouts",
@@ -129,7 +129,7 @@
         "billing": "month",
         "short": "Your site watched every month: uptime, SSL, domain and forms.",
         "best": "Owners who want peace of mind and rarely need changes.",
-        "bestDraft": true,
+        "bestDraft": false,
         "included": [
           "Website uptime monitoring",
           "Monthly navigation and contact form checks",
@@ -157,7 +157,7 @@
         "billing": "month",
         "short": "Everything in Essential Care, plus up to 60 minutes of small updates.",
         "best": "Owners who change hours, prices, photos or text now and then.",
-        "bestDraft": true,
+        "bestDraft": false,
         "includedTitle": "Everything in Essential Care, plus",
         "included": [
           "Up to 60 minutes of small content updates per month",
