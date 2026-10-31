@@ -85,37 +85,60 @@
   }
 
   // One open per group (packages, FAQ).
-  // An opened package glides to just below the top of the panel's own scroll area, in step with the
-  // open/close animation (including another package above it folding away). FAQ answers stay in place.
+  // Opening a package: any open package ABOVE it folds away instantly, with the scroll compensated so the
+  // tapped row doesn't move; then the new package opens and glides on one timed curve to just below the
+  // top of the panel's own scroll area. An open package below folds with the normal animation.
+  // FAQ answers keep the tapped row steady and don't move to the top.
   const TOP_GAP = 16;
   const gapToTop = (item) => item.getBoundingClientRect().top - sheet.getBoundingClientRect().top - TOP_GAP;
+  const ease = (k) => (k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2);
+  let glide = 0;
+
+  function collapseInstantly(o) {
+    o.classList.add('svc-instant-item');
+    setOpen(o, false);
+    void o.offsetHeight; // apply the collapsed height now
+    requestAnimationFrame(() => requestAnimationFrame(() => o.classList.remove('svc-instant-item')));
+  }
 
   function toggle(item) {
     const opening = !item.classList.contains('open');
     const faq = item.hasAttribute('data-faq');
     const before = item.getBoundingClientRect().top;
+    cancelAnimationFrame(glide);
     body.querySelectorAll('[data-svc-item].open').forEach((o) => {
-      if (o !== item && o.hasAttribute('data-faq') === faq) setOpen(o, false);
+      if (o === item || o.hasAttribute('data-faq') !== faq) return;
+      const above = o.compareDocumentPosition(item) & Node.DOCUMENT_POSITION_FOLLOWING;
+      if (opening && !faq && above) collapseInstantly(o); else setOpen(o, false);
     });
+    // keep the tapped row exactly where it was
+    sheet.scrollTop += item.getBoundingClientRect().top - before;
     setOpen(item, opening);
-    const toTop = opening && !faq;
-    if (reduce) {
-      if (toTop) sheet.scrollTop += gapToTop(item);
+
+    if (opening && !faq) {
+      const from = sheet.scrollTop;
+      const dist = gapToTop(item);
+      if (Math.abs(dist) < 8) return; // already in place
+      if (reduce) { sheet.scrollTop = from + dist; return; }
+      const start = performance.now();
+      const DURATION = 520;
+      glide = requestAnimationFrame(function step(now) {
+        if (panel.hidden) return;
+        const k = Math.min(1, (now - start) / DURATION);
+        sheet.scrollTop = from + dist * ease(k);
+        if (k < 1) glide = requestAnimationFrame(step);
+      });
       return;
     }
+    if (reduce) return;
+    // FAQ, or collapsing: hold the tapped row steady while content above animates
     const start = performance.now();
-    (function follow(now) {
+    glide = requestAnimationFrame(function hold(now) {
       if (panel.hidden) return;
-      if (toTop) {
-        // ease toward the target; the target moves while other content collapses, so re-measure each frame
-        const gap = gapToTop(item);
-        if (Math.abs(gap) > 0.5) sheet.scrollTop += now - start < 650 ? gap * 0.22 : gap;
-      } else {
-        const drift = item.getBoundingClientRect().top - before;
-        if (Math.abs(drift) > 0.5) sheet.scrollTop += drift;
-      }
-      if (now - start < 700) requestAnimationFrame(follow);
-    })(start);
+      const drift = item.getBoundingClientRect().top - before;
+      if (Math.abs(drift) > 0.5) sheet.scrollTop += drift;
+      if (now - start < 650) glide = requestAnimationFrame(hold);
+    });
   }
 
   // Leaving Services by any route (×, Escape, a click outside, another panel opening) hides the panel.

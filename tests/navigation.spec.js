@@ -38,11 +38,14 @@ test.describe('phone navigation stays inside the screen', () => {
       await gotoReady(page);
       const m = await page.evaluate(() => {
         const nav = document.querySelector('.pillnav').getBoundingClientRect();
-        const name = document.querySelector('.id-name').getBoundingClientRect();
-        return { left: nav.left, right: nav.right, vw: innerWidth, nameRight: name.right };
+        const header = document.querySelector('.id').getBoundingClientRect(); // logo, plus "olga." where shown
+        const services = document.querySelector('.pillnav [data-open="services"]').getBoundingClientRect();
+        return { left: nav.left, right: nav.right, vw: innerWidth, headerRight: header.right, servicesRight: services.right };
       });
       expect(m.right, 'nav right edge').toBeLessThanOrEqual(m.vw - 12);
-      expect(m.left, 'nav must not overlap "olga."').toBeGreaterThanOrEqual(m.nameRight + 4);
+      expect(m.left, 'nav must not overlap the logo').toBeGreaterThanOrEqual(m.headerRight + 8);
+      // Real-device report (2026-10-31): Services was cut at the bar's edge. From 390px it must show in full.
+      if (width >= 390) expect(m.servicesRight, 'Services tab fully visible').toBeLessThanOrEqual(m.right - 8);
       // every tab can be reached by scrolling the nav
       for (const name of ['work', 'services', 'about', 'contact']) {
         await navClick(page, name);

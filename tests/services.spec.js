@@ -109,3 +109,45 @@ test('keyboard: Enter opens a package, Escape closes it before the panel', async
   await page.keyboard.press('Escape');
   await expect(panel(page, 'services')).toBeHidden();
 });
+
+// Real-device report (iPhone, 2026-10-31): open Starter, scroll down without closing it, open Business —
+// the panel jumped. The tapped row must only move smoothly upward to its final place, never jump.
+test('switching after scrolling down: the tapped package glides without jumping', async ({ page }) => {
+  await gotoReady(page, { motion: true });
+  await openServices(page);
+  const heads = panel(page, 'services').locator('.svc-pkg .svc-head');
+  await heads.nth(0).click();
+  await page.waitForTimeout(900);
+  // scroll the panel so Business sits around the middle of the visible panel, Starter still open above
+  await heads.nth(1).evaluate((h) => {
+    const s = h.closest('.sheet');
+    s.scrollTop += h.getBoundingClientRect().top - s.getBoundingClientRect().top - s.clientHeight / 2;
+  });
+  await page.waitForTimeout(200);
+  // sample every rendered frame with its timestamp, so the check works at any frame rate
+  const frames = await heads.nth(1).evaluate((h) => new Promise((resolve) => {
+    const s = h.closest('.sheet');
+    const gap = () => h.getBoundingClientRect().top - s.getBoundingClientRect().top;
+    const out = [[performance.now(), gap()]];
+    h.click();
+    const t0 = performance.now();
+    (function tick(now) {
+      out.push([now, gap()]);
+      if (now - t0 < 1000) requestAnimationFrame(tick); else resolve(out);
+    })(t0);
+  }));
+  const gaps = frames.map((f) => Math.round(f[1]));
+  let maxSpeed = 0, maxDown = 0;
+  for (let i = 1; i < frames.length; i++) {
+    const d = frames[i][1] - frames[i - 1][1];
+    const dt = Math.max(16, frames[i][0] - frames[i - 1][0]);
+    maxDown = Math.max(maxDown, d);
+    maxSpeed = Math.max(maxSpeed, -d / dt);
+  }
+  expect(maxDown, `row moved down at some point: ${gaps}`).toBeLessThanOrEqual(1);
+  // a smooth glide stays under ~2.5 px/ms; an instant jump is far faster
+  expect(maxSpeed, `row jumped (px/ms): ${gaps}`).toBeLessThanOrEqual(2.5);
+  expect(gaps.at(-1)).toBeGreaterThanOrEqual(0);
+  expect(gaps.at(-1)).toBeLessThanOrEqual(120);
+  expect(await page.locator('[data-panel="services"] .svc-pkg.open').count()).toBe(1);
+});

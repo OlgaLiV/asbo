@@ -20,6 +20,7 @@
 .svc-note { margin: 14px 0 0; max-width: 640px; font-size: 14.5px; color: var(--ink-2); }
 .svc-quote { font-size: clamp(16px, 1.8vw, 21px); }
 .sheet.svc-instant .svc-body, .sheet.svc-instant .svc-inner > div, .sheet.svc-instant .svc-hint, .sheet.svc-instant .svc-name { transition: none !important; }
+.svc-instant-item .svc-body, .svc-instant-item .svc-inner > div, .svc-instant-item .svc-hint, .svc-instant-item .svc-name { transition: none !important; }
 .svc-price { font: 400 clamp(22px, 2.7vw, 32px)/1 var(--brand); letter-spacing: -.01em; text-align: right; white-space: nowrap; }
 .svc-price .mono { display: block; font-size: 10px; margin-bottom: 8px; }
 .svc-per { font-size: .5em; }
@@ -78,10 +79,20 @@
 
 @media (max-width: 860px) {
   /* Phones: all tabs stay reachable; the pill bar scrolls sideways instead of hiding tabs */
-  .pillnav { max-width: calc(100vw - 150px); overflow-x: auto; scrollbar-width: none; }
+  /* clear of the logo + "olga." with a 16px gap, whatever font metrics the phone uses */
+  .pillnav { max-width: calc(100vw - 162px); overflow-x: auto; scrollbar-width: none; }
   .pillnav::-webkit-scrollbar { display: none; }
   .pillnav .pill:not(.active):not([data-open="work"]) { display: inline-block; }
   .pillnav .pill, .pillnav .icon-btn { flex: none; }
+  .pillnav .pill { padding: 8px 10px; letter-spacing: .1em; }
+  .pillnav .pill:last-child { margin-right: 16px; }
+  /* soft fade at the bar's right end, so the last visible tab fades out instead of being cut */
+  .pillnav::after { content: ''; position: sticky; right: 0; flex: none; align-self: stretch; width: 24px; margin-left: -24px; background: linear-gradient(to right, rgba(250, 250, 252, 0), rgb(250, 250, 252) 80%); border-radius: 0 999px 999px 0; pointer-events: none; }
+}
+@media (max-width: 600px) {
+  /* Phones: the brain logo stays (it links home); the word "olga." gives its room to the nav */
+  .id > div { display: none; }
+  .pillnav { max-width: calc(100vw - 100px); }
 }
 @media (max-width: 760px) {
   .svc-group { margin-top: 48px; }
