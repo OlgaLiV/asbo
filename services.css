@@ -17,6 +17,9 @@
 .svc-tier { display: block; font-size: 10px; margin-bottom: 6px; }
 .svc-name { display: block; font: 300 clamp(30px, 4.2vw, 50px)/1.02 var(--display); letter-spacing: -.045em; margin: 0 0 8px; transition: color .3s; }
 .svc-short { display: block; color: var(--ink-2); font-size: 15.5px; max-width: 520px; }
+.svc-note { margin: 14px 0 0; max-width: 640px; font-size: 14.5px; color: var(--ink-2); }
+.svc-quote { font-size: clamp(16px, 1.8vw, 21px); }
+.sheet.svc-instant .svc-body, .sheet.svc-instant .svc-inner > div, .sheet.svc-instant .svc-hint, .sheet.svc-instant .svc-name { transition: none !important; }
 .svc-price { font: 400 clamp(22px, 2.7vw, 32px)/1 var(--brand); letter-spacing: -.01em; text-align: right; white-space: nowrap; }
 .svc-price .mono { display: block; font-size: 10px; margin-bottom: 8px; }
 .svc-per { font-size: .5em; }

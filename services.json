@@ -117,6 +117,32 @@
       }
     ]
   },
+  "additional": {
+    "title": "Additional development",
+    "note": "one-time · custom quote",
+    "eligibility": "For websites originally built by AI Studio by Olga. Have a website made by another developer or agency? AI Studio by Olga doesn't take over or modify it, but can build you a completely new website from scratch.",
+    "packages": [
+      {
+        "id": "additional-development",
+        "tier": "Custom quote",
+        "name": "Additional Development",
+        "quote": true,
+        "billing": "one-time",
+        "short": "New pages, features or a fresh design for a website AI Studio by Olga built.",
+        "best": "Clients whose AI Studio by Olga website needs to grow beyond small monthly updates.",
+        "bestDraft": true,
+        "includedTitle": "What it covers",
+        "included": [
+          "Additional pages and sections",
+          "New features and integrations",
+          "Major design or layout changes",
+          "Full website redesigns",
+          "Custom functionality"
+        ],
+        "limits": "A one-time project with its own quote, not a monthly plan. Work starts only after you approve the quote. Available only for websites originally built by AI Studio by Olga."
+      }
+    ]
+  },
   "care": {
     "title": "Optional care",
     "note": "monthly · month-to-month · cancel any time",
@@ -147,7 +173,7 @@
           "Major repairs or third-party failures",
           "Hosting, domain, or third-party subscription fees"
         ],
-        "limits": "Month-to-month. Cancel any time, with no long-term commitment."
+        "limits": "Month-to-month. Cancel any time, with no long-term commitment. Available only for websites built by AI Studio by Olga."
       },
       {
         "id": "business-care",
@@ -178,11 +204,15 @@
           "Emergency or 24/7 support",
           "Third-party services and subscriptions"
         ],
-        "limits": "Unused update time does not roll over. Month-to-month; cancel any time, with no long-term commitment."
+        "limits": "Unused update time does not roll over. Month-to-month; cancel any time, with no long-term commitment. Available only for websites built by AI Studio by Olga."
       }
-    ]
+    ],
+    "eligibility": "Care plans are for websites built by AI Studio by Olga."
   },
-  "statement": ["No long-term contracts.", "Your website stays yours."],
+  "statement": [
+    "No long-term contracts.",
+    "Your website stays yours."
+  ],
   "principles": [
     "Website development is a one-time project fee.",
     "Maintenance subscriptions are always optional.",
@@ -195,14 +225,45 @@
     "The 30-day bug-fix warranty covers defects in the agreed development work, not new features or third-party issues."
   ],
   "faq": [
-    { "q": "Do I have to purchase maintenance?", "a": "No. Maintenance is always optional, and your website works without it." },
-    { "q": "Will I own my website?", "a": "Yes. Ownership of the agreed custom work transfers to you after full payment, subject to any third-party licenses (fonts, plugins, stock images)." },
-    { "q": "Are domain and hosting included?", "a": "No. Domain, hosting and any software subscriptions are paid by you directly, and every cost is shown to you before launch." },
-    { "q": "Can I cancel maintenance anytime?", "a": "Yes. Both care plans are month-to-month. There are no annual contracts, and you keep your website." },
-    { "q": "What if I need more pages or features?", "a": "They are quoted separately, and nothing extra is billed without your approval first." },
-    { "q": "What happens if something breaks after launch?", "a": "For 30 days, defects in the work I built are fixed free. After that, a care plan or a separate quote covers it. New features and third-party problems are not part of the warranty." },
-    { "q": "Can I update the website myself?", "a": "It depends on whether a CMS (a content management system, an editor for text and images) is included in your project. With a CMS, you can make everyday edits yourself. Without one, changes are made in the code, so you would ask me, or use Business Care for up to 60 minutes of small updates a month. Whether a CMS is included is agreed and written into your proposal before development begins." },
-    { "q": "Are AI assistants included in the website packages?", "a": "No. AI chatbots and automation are a separate service, quoted on their own." },
-    { "q": "Will I know about recurring costs before launch?", "a": "Yes. Domain, hosting, software and any AI API costs are listed before launch." }
+    {
+      "q": "Do I have to purchase maintenance?",
+      "a": "No. Maintenance is always optional, and your website works without it."
+    },
+    {
+      "q": "Will I own my website?",
+      "a": "Yes. Ownership of the agreed custom work transfers to you after full payment, subject to any third-party licenses (fonts, plugins, stock images)."
+    },
+    {
+      "q": "Are domain and hosting included?",
+      "a": "No. Domain, hosting and any software subscriptions are paid by you directly, and every cost is shown to you before launch."
+    },
+    {
+      "q": "Can I cancel maintenance anytime?",
+      "a": "Yes. Both care plans are month-to-month. There are no annual contracts, and you keep your website."
+    },
+    {
+      "q": "What if I need more pages or features?",
+      "a": "That's Additional Development: a one-time, custom-quoted project for websites built by AI Studio by Olga. Nothing extra is billed without your approval first."
+    },
+    {
+      "q": "Can you update or maintain a website someone else built?",
+      "a": "Not at this stage. AI Studio by Olga only maintains, modifies or redesigns websites it originally built. If your current website was made by another developer or agency, AI Studio by Olga can build you a completely new website from scratch."
+    },
+    {
+      "q": "What happens if something breaks after launch?",
+      "a": "For 30 days, defects in the work I built are fixed free. After that, a care plan or a separate quote covers it. New features and third-party problems are not part of the warranty."
+    },
+    {
+      "q": "Can I update the website myself?",
+      "a": "It depends on whether a CMS (a content management system, an editor for text and images) is included in your project. With a CMS, you can make everyday edits yourself. Without one, changes are made in the code, so you would ask me, or use Business Care for up to 60 minutes of small updates a month. Whether a CMS is included is agreed and written into your proposal before development begins."
+    },
+    {
+      "q": "Are AI assistants included in the website packages?",
+      "a": "No. AI chatbots and automation are a separate service, quoted on their own."
+    },
+    {
+      "q": "Will I know about recurring costs before launch?",
+      "a": "Yes. Domain, hosting, software and any AI API costs are listed before launch."
+    }
   ]
 }

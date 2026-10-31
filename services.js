@@ -23,7 +23,9 @@
             <span class="svc-name">${esc(p.name)}</span>
             <span class="svc-short">${esc(p.short)}</span>
           </span>
-          <span class="svc-price"><span class="mono">${label}</span>${usd(p.price)}${p.billing === 'month' ? '<span class="svc-per">/mo</span>' : ''}</span>
+          ${p.quote
+            ? `<span class="svc-price svc-quote"><span class="mono">${label}</span>Custom quote</span>`
+            : `<span class="svc-price"><span class="mono">${label}</span>${usd(p.price)}${p.billing === 'month' ? '<span class="svc-per">/mo</span>' : ''}</span>`}
           <span class="svc-hint">${plus}</span>
         </span>
       </button>
@@ -32,7 +34,7 @@
           ${p.best && !p.bestDraft ? `<p class="svc-best">Best for: ${esc(p.best)}</p>` : ''}
           <div class="svc-cols">
             <div class="svc-in"><h4 class="mono">${esc(p.includedTitle || "What's included")}</h4>${list(p.included)}</div>
-            <div class="svc-out"><h4 class="mono">${esc(p.excludedTitle || 'Not included')}</h4>${list(p.excluded)}</div>
+            ${p.excluded ? `<div class="svc-out"><h4 class="mono">${esc(p.excludedTitle || 'Not included')}</h4>${list(p.excluded)}</div>` : ''}
             <div><h4 class="mono">Good to know</h4><p class="svc-limits">${esc(p.limits)}</p>
               <a class="btn" href="${esc(cal)}" target="_blank" rel="noopener">Book a Free Consultation</a></div>
           </div>
@@ -57,8 +59,14 @@
         <div class="svc-label"><h3 id="svc-web">${esc(d.websites.title)}</h3><span class="mono">${esc(d.websites.note)}</span></div>
         ${d.websites.packages.map((p, i) => pkgRow(p, i, d.calendly)).join('')}
       </section>
+      ${d.additional ? `<section class="svc-group" aria-labelledby="svc-extra">
+        <div class="svc-label"><h3 id="svc-extra">${esc(d.additional.title)}</h3><span class="mono">${esc(d.additional.note)}</span></div>
+        <p class="svc-note">${esc(d.additional.eligibility)}</p>
+        ${d.additional.packages.map((p, i) => pkgRow(p, i, d.calendly)).join('')}
+      </section>` : ''}
       <section class="svc-group svc-care" aria-labelledby="svc-care">
         <div class="svc-label"><h3 id="svc-care">${esc(d.care.title)}</h3><span class="mono">${esc(d.care.note)}</span></div>
+        ${d.care.eligibility ? `<p class="svc-note">${esc(d.care.eligibility)}</p>` : ''}
         ${d.care.packages.map((p, i) => pkgRow(p, i, d.calendly)).join('')}
       </section>
       <section class="svc-statement" aria-label="Clear pricing. No surprises.">
@@ -94,6 +102,16 @@
       if (now - start < 650) requestAnimationFrame(hold);
     })(start);
   }
+
+  // Leaving Services by any route (×, Escape, a click outside, another panel opening) hides the panel.
+  // Collapse everything then, out of sight and without animation, so Services always reopens clean.
+  function reset() {
+    sheet.classList.add('svc-instant');
+    body.querySelectorAll('[data-svc-item].open').forEach((o) => setOpen(o, false));
+    sheet.scrollTop = 0;
+    requestAnimationFrame(() => requestAnimationFrame(() => sheet.classList.remove('svc-instant')));
+  }
+  new MutationObserver(() => { if (panel.hidden) reset(); }).observe(panel, { attributes: true, attributeFilter: ['hidden'] });
 
   body.addEventListener('click', (e) => {
     const head = e.target.closest('.svc-head');
