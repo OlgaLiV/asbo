@@ -1,0 +1,16 @@
+{
+  "name": "asbo-portfolio",
+  "private": true,
+  "type": "module",
+  "description": "ASBO portfolio site (static). Node is used only for the Playwright test suite.",
+  "scripts": {
+    "test": "playwright test",
+    "test:smoke": "playwright test --grep @smoke",
+    "test:live": "BASE_URL=https://olgaliv.github.io/asbo/ playwright test --grep @smoke",
+    "report": "playwright show-report"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.10.0",
+    "@playwright/test": "^1.56.0"
+  }
+}

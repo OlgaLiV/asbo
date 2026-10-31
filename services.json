@@ -47,7 +47,7 @@
         "price": 1800,
         "from": false,
         "billing": "one-time",
-        "short": "Up to 5 pages, custom-designed, with galleries, maps and analytics.",
+        "short": "The base package for up to 5 pages, custom-designed, with galleries, maps and analytics.",
         "best": "An established local business that needs room for services, a gallery, an about page and contact.",
         "bestDraft": false,
         "included": [
@@ -79,7 +79,7 @@
           "Domain, hosting, and third-party subscriptions",
           "Ongoing maintenance"
         ],
-        "limits": "A CMS is only included when the proposal says so. The 30-day warranty covers defects in the agreed work, not new features or third-party issues."
+        "limits": "A CMS is only included when the proposal says so. Extra pages, design work, galleries or features can be added for an extra fee, quoted and approved before development begins. The final price and scope are agreed in writing before development begins. The 30-day warranty covers defects in the agreed work, not new features or third-party issues."
       },
       {
         "id": "advanced",
@@ -88,7 +88,7 @@
         "price": 3500,
         "from": true,
         "billing": "one-time",
-        "short": "For businesses requiring more advanced functionality.",
+        "short": "For technically complex projects: custom functionality, CMS, advanced integrations or business logic.",
         "best": "A business that needs a blog or CMS, booking or CRM connections, or functionality built for its own process.",
         "bestDraft": false,
         "includedTitle": "Possible features",
@@ -113,7 +113,7 @@
           "Third-party fees",
           "Ongoing maintenance"
         ],
-        "limits": "These are possible features, not a promise that every feature is included in the starting price. The final scope, deliverables, timeline, revision rounds, and fixed project price are defined in a written proposal."
+        "limits": "The difference from Business is technical complexity, not just the number of pages. These are possible features, not a promise that every feature is included in the starting price. The final scope, deliverables, timeline, revision rounds, and fixed project price are defined in a written proposal."
       }
     ]
   },
@@ -242,8 +242,12 @@
       "a": "Yes. Both care plans are month-to-month. There are no annual contracts, and you keep your website."
     },
     {
+      "q": "Do I need Business or Advanced?",
+      "a": "It depends on technical complexity, not just the number of pages. Business is the base package for up to 5 pages, and more pages or design work can be added for an extra fee. Advanced is for projects that need custom functionality, a CMS, advanced integrations or business logic. Either way, the final price and scope are agreed in writing before development begins."
+    },
+    {
       "q": "What if I need more pages or features?",
-      "a": "That's Additional Development: a one-time, custom-quoted project for websites built by AI Studio by Olga. Nothing extra is billed without your approval first."
+      "a": "For a new website, extra pages, design work, galleries or features can be added to your package for an extra fee, quoted and approved before development begins. For a website AI Studio by Olga already built, that's Additional Development, a one-time custom-quoted project. Nothing extra is billed without your approval first."
     },
     {
       "q": "Can you update or maintain a website someone else built?",

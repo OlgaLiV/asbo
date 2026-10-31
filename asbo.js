@@ -161,32 +161,57 @@ $('[data-toggle="motion"]').addEventListener('click', (e) => {
 
 // ---------- Knowledge ----------
 const CAL = 'https://calendly.com/ai-studio-by-olga';
-const answers = [
-  { k: ['built', 'build', 'work', 'project', 'portfolio', 'made'], a: 'olga has built her own studio site and mobile app, enrolla (an admissions crm with a live demo), a website for tampa bay realtor nataliya fillers, and a real estate lead assistant prototype.', go: ['work', 'navigate_to_[work]'] },
-  { k: ['enrolla', 'crm', 'college', 'admission'], a: 'enrolla puts every college enquiry in one queue and gives it to one counsellor within seconds. first replies are drafted from the programme table, and reminders stop the moment the student replies. it is checked with automated end-to-end tests.', link: ['https://enrolla-five.vercel.app', 'open_live_demo ↗'] },
-  { k: ['nataliya', 'natalia', 'realtor', 'tampa'], a: "nataliya fillers is olga's first client website: a tampa bay realtor known in the russian-speaking community for being there for her clients. it's in progress now.", go: ['work', 'navigate_to_[work]'] },
-  { k: ['app', 'mobile', 'studio', 'asbo', 'website'], a: 'asbo is ai studio by olga. the studio has a three-language website and an ios and android app. every lead lands in a database, her inbox and her phone.' },
-  { k: ['test', 'qa', 'quality', 'launch', 'break', 'why'], a: "nine years as a qa automation engineer taught olga that 'it works on my screen' isn't good enough. every assistant is checked against your requirements, your tools and odd questions before a single client sees it, and you get the test report." },
-  { k: ['price', 'cost', 'how much', 'pricing', 'package', '$'], a: 'one-time setup, in us dollars: quick-start bots from $149, ai agent packages from $399, custom automation from $249. support after launch starts at $49 a month. the exact price is agreed after a free conversation.', link: [CAL, 'book_free_consultation ↗'] },
-  { k: ['help', 'business', 'salon', 'gym', 'fitness', 'real estate', 'beauty', 'hire', 'open'], a: 'probably. olga builds assistants that answer messages, qualify leads, book appointments, send reminders and follow up, for salons, studios, real estate offices and local services. the first conversation is free.', link: [CAL, 'book_free_consultation ↗'] },
-  { k: ['language', 'russian', 'ukrainian', 'english', 'speak'], a: 'olga speaks english, russian and ukrainian, and so can the assistants she builds.' },
-  { k: ['who', 'olga', 'about', 'background', 'experience'], a: "olga is the founder of asbo, ai studio by olga. nine years of qa automation, now building practical ai agents for small businesses. you talk to her from the first conversation to launch.", go: ['about', 'navigate_to_[about]'] },
-  { k: ['contact', 'email', 'book', 'call', 'meet', 'talk'], a: 'the easiest way is a free consultation on calendly, or email asboagent@gmail.com.', link: [CAL, 'book_free_consultation ↗'] },
-  { k: ['robot', 'you', 'asbo?', 'girl', 'name'], a: "i'm asbo, short for ai studio by olga. i'm a simple scripted assistant: i only answer from olga's notes, and i don't send anything anywhere." },
-];
-const commands = { '/work': 'work', '/about': 'about', '/contact': 'contact' };
+// Questions and answers in English, Russian and Ukrainian live in asbo-intents.js.
+const KB = window.ASBO_INTENTS || { fallback: {}, intents: [] };
+const commands = { '/work': 'work', '/services': 'services', '/about': 'about', '/contact': 'contact' };
 
+// Prices come from services.json, the same file the Services panel uses.
+let PRICES = null;
+fetch('services.json').then((r) => r.json()).then((d) => {
+  const all = [...d.websites.packages, ...d.care.packages];
+  const usd = (id) => { const p = all.find((x) => x.id === id); return p ? '$' + p.price.toLocaleString('en-US') : null; };
+  PRICES = { starter: usd('starter'), business: usd('business'), advanced: usd('advanced'), essential: usd('essential-care'), care: usd('business-care') };
+}).catch(() => {});
+
+// Language: Cyrillic means Russian or Ukrainian, told apart by letters and common words unique to each.
+const UK_WORDS = new Set(['яка', 'який', 'які', 'що', 'чи', 'як', 'де', 'хто', 'ви', 'вона', 'він', 'це', 'або', 'мені', 'скільки', 'коли', 'чому', 'та', 'й']);
+const RU_WORDS = new Set(['какая', 'какой', 'какие', 'что', 'ли', 'как', 'где', 'кто', 'вы', 'она', 'он', 'это', 'или', 'мне', 'сколько', 'когда', 'почему', 'и']);
+function detectLang(text) {
+  if (!/[Ѐ-ӿ]/.test(text)) return 'en';
+  const t = text.toLowerCase();
+  let uk = (t.match(/[іїєґ]/g) || []).length * 2;
+  let ru = (t.match(/[ыэъё]/g) || []).length * 2;
+  for (const w of t.split(/[^a-zа-яёіїєґ']+/)) { if (UK_WORDS.has(w)) uk++; if (RU_WORDS.has(w)) ru++; }
+  return uk > ru ? 'uk' : 'ru';
+}
+
+const LABELS = { work: 'navigate_to_[work]', services: 'navigate_to_[services]', about: 'navigate_to_[about]' };
 function answer(q) {
-  const t = q.toLowerCase();
+  const lang = detectLang(q);
+  const t = q.toLowerCase().replace(/[’ʼ`]/g, "'");
   let best = null, score = 0;
-  for (const item of answers) {
-    const s = item.k.reduce((n, k) => n + (t.includes(k) ? k.length : 0), 0);
-    if (s > score) { score = s; best = item; }
+  for (const intent of KB.intents) {
+    const keys = new Set([...(intent.keys.en || []), ...(intent.keys.ru || []), ...(intent.keys.uk || [])]);
+    let s = 0;
+    for (const k of keys) if (t.includes(k)) s += k.length;
+    if (s > score) { score = s; best = intent; }
   }
-  return best || { a: "i don't know that one yet. i only answer from olga's notes. try asking what she has built, how she tests, or what it costs.", link: [CAL, 'ask_olga_directly ↗'] };
+  if (!best) return { lang, a: KB.fallback[lang] || KB.fallback.en, link: [CAL, 'ask_olga_directly ↗'] };
+  let a = best.answer[lang] || best.answer.en;
+  if (/\{\w+\}/.test(a)) a = PRICES ? a.replace(/\{(\w+)\}/g, (m, k) => PRICES[k] || m) : (best.noData[lang] || best.noData.en);
+  const res = { lang, a };
+  if (best.go) res.go = [best.go, LABELS[best.go]];
+  if (best.link) res.link = best.link === 'calendly' ? [CAL, 'book_free_consultation ↗'] : [best.link, best.linkLabel || 'open ↗'];
+  return res;
 }
 
 // ---------- Terminal ----------
+// Phones: size the terminal to the visible screen, which shrinks when the on-screen keyboard opens.
+if (window.visualViewport) {
+  const setVvh = () => document.documentElement.style.setProperty('--vvh', `${Math.round(visualViewport.height)}px`);
+  visualViewport.addEventListener('resize', setVvh);
+  setVvh();
+}
 const log = $('[data-log]');
 const input = $('#q');
 function addLine(cls, text) {

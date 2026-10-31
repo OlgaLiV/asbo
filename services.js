@@ -84,8 +84,12 @@
     item.querySelector('.svc-head').setAttribute('aria-expanded', String(on));
   }
 
-  // One open per group (packages, FAQ). While another item above folds away, keep the clicked row
-  // steady inside the scrolling sheet so the content doesn't jump.
+  // One open per group (packages, FAQ).
+  // An opened package glides to just below the top of the panel's own scroll area, in step with the
+  // open/close animation (including another package above it folding away). FAQ answers stay in place.
+  const TOP_GAP = 16;
+  const gapToTop = (item) => item.getBoundingClientRect().top - sheet.getBoundingClientRect().top - TOP_GAP;
+
   function toggle(item) {
     const opening = !item.classList.contains('open');
     const faq = item.hasAttribute('data-faq');
@@ -94,12 +98,23 @@
       if (o !== item && o.hasAttribute('data-faq') === faq) setOpen(o, false);
     });
     setOpen(item, opening);
-    if (reduce) return;
+    const toTop = opening && !faq;
+    if (reduce) {
+      if (toTop) sheet.scrollTop += gapToTop(item);
+      return;
+    }
     const start = performance.now();
-    (function hold(now) {
-      const drift = item.getBoundingClientRect().top - before;
-      if (Math.abs(drift) > 0.5) sheet.scrollTop += drift;
-      if (now - start < 650) requestAnimationFrame(hold);
+    (function follow(now) {
+      if (panel.hidden) return;
+      if (toTop) {
+        // ease toward the target; the target moves while other content collapses, so re-measure each frame
+        const gap = gapToTop(item);
+        if (Math.abs(gap) > 0.5) sheet.scrollTop += now - start < 650 ? gap * 0.22 : gap;
+      } else {
+        const drift = item.getBoundingClientRect().top - before;
+        if (Math.abs(drift) > 0.5) sheet.scrollTop += drift;
+      }
+      if (now - start < 700) requestAnimationFrame(follow);
     })(start);
   }
 
