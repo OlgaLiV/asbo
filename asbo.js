@@ -171,7 +171,7 @@ const answers = [
   { k: ['help', 'business', 'salon', 'gym', 'fitness', 'real estate', 'beauty', 'hire', 'open'], a: 'probably. olga builds assistants that answer messages, qualify leads, book appointments, send reminders and follow up, for salons, studios, real estate offices and local services. the first conversation is free.', link: [CAL, 'book_free_consultation ↗'] },
   { k: ['language', 'russian', 'ukrainian', 'english', 'speak'], a: 'olga speaks english, russian and ukrainian, and so can the assistants she builds.' },
   { k: ['who', 'olga', 'about', 'background', 'experience'], a: "olga is the founder of asbo, ai studio by olga. nine years of qa automation, now building practical ai agents for small businesses. you talk to her from the first conversation to launch.", go: ['about', 'navigate_to_[about]'] },
-  { k: ['contact', 'email', 'book', 'call', 'meet', 'talk'], a: 'the easiest way is a free consultation on calendly, or email ai.studio.by.olga@gmail.com.', link: [CAL, 'book_free_consultation ↗'] },
+  { k: ['contact', 'email', 'book', 'call', 'meet', 'talk'], a: 'the easiest way is a free consultation on calendly, or email asboagent@gmail.com.', link: [CAL, 'book_free_consultation ↗'] },
   { k: ['robot', 'you', 'asbo?', 'girl', 'name'], a: "i'm asbo, short for ai studio by olga. i'm a simple scripted assistant: i only answer from olga's notes, and i don't send anything anywhere." },
 ];
 const commands = { '/work': 'work', '/about': 'about', '/contact': 'contact' };

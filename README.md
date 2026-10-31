@@ -7,4 +7,4 @@ Portfolio site for Olga, a QA automation engineer who builds AI agents and autom
 
 Plain HTML, CSS and JavaScript with no build step. Served with GitHub Pages.
 
-Contact: ai.studio.by.olga@gmail.com · [Book a free consultation](https://calendly.com/ai-studio-by-olga)
+Contact: asboagent@gmail.com · [Book a free consultation](https://calendly.com/ai-studio-by-olga)
