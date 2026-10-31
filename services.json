@@ -1,0 +1,208 @@
+{
+  "_about": "Services & Pricing content for the ASBO site and, later, ASBO's knowledge base. Edit text and prices here; services.js builds the panel from this file. bestDraft: true marks a 'Best for' line Olga has not approved yet; it is not shown on the site until set to false.",
+  "intro": "Websites built once, for a fixed price. Care plans if you want them. Every price is on this page.",
+  "calendly": "https://calendly.com/ai-studio-by-olga",
+  "websites": {
+    "title": "Website development",
+    "note": "one-time project fee",
+    "packages": [
+      {
+        "id": "starter",
+        "tier": "Starter",
+        "name": "One-Page Website",
+        "price": 850,
+        "from": false,
+        "billing": "one-time",
+        "short": "One custom-designed page with up to 5 sections, ready on every screen.",
+        "best": "A new or small business that needs one clear, professional page to send people to.",
+        "bestDraft": false,
+        "included": [
+          "One custom-designed page with up to 5 sections",
+          "Responsive desktop, tablet, and mobile layouts",
+          "Business branding using client-provided assets",
+          "Contact form and social media links",
+          "Basic on-page SEO setup",
+          "2 rounds of revisions",
+          "Domain connection and deployment",
+          "30-day development bug-fix warranty"
+        ],
+        "excluded": [
+          "Additional pages or sections",
+          "Logo design and complete branding",
+          "Professional copywriting, photography, or video",
+          "E-commerce and payment systems",
+          "Booking systems, CRM integrations, or databases",
+          "AI chatbots and automation",
+          "Complex animations and interactive features",
+          "Advanced SEO and marketing",
+          "Domain, hosting, and third-party fees",
+          "Ongoing maintenance"
+        ],
+        "limits": "The 30-day warranty covers defects in the agreed development work, not new features or third-party issues."
+      },
+      {
+        "id": "business",
+        "tier": "Business",
+        "name": "Business Website",
+        "price": 1800,
+        "from": false,
+        "billing": "one-time",
+        "short": "Up to 5 pages, custom-designed, with galleries, maps and analytics.",
+        "best": "An established local business that needs room for services, a gallery, an about page and contact.",
+        "bestDraft": true,
+        "included": [
+          "Up to 5 individual pages",
+          "Custom design tailored to the business",
+          "Responsive layouts",
+          "Navigation and calls to action",
+          "Galleries, portfolio sections, or service pages",
+          "Contact form with basic spam protection",
+          "Social media and Google Maps integration where applicable",
+          "Basic on-page SEO",
+          "Analytics setup",
+          "2 rounds of revisions",
+          "Website testing and deployment",
+          "30-day development bug-fix warranty"
+        ],
+        "excluded": [
+          "More than 5 pages",
+          "Logo design and full branding",
+          "Professional copywriting and photography",
+          "E-commerce and payment processing",
+          "Custom booking systems",
+          "AI agents and automation",
+          "CRM and MLS/IDX integrations",
+          "Custom databases and customer portals",
+          "CMS unless included in the proposal",
+          "Advanced SEO and advertising",
+          "Complex interactive functionality",
+          "Domain, hosting, and third-party subscriptions",
+          "Ongoing maintenance"
+        ],
+        "limits": "A CMS is only included when the proposal says so. The 30-day warranty covers defects in the agreed work, not new features or third-party issues."
+      },
+      {
+        "id": "advanced",
+        "tier": "Advanced",
+        "name": "Custom Website",
+        "price": 3500,
+        "from": true,
+        "billing": "one-time",
+        "short": "For businesses requiring more advanced functionality.",
+        "best": "A business that needs a blog or CMS, booking or CRM connections, or functionality built for its own process.",
+        "bestDraft": true,
+        "includedTitle": "Possible features",
+        "included": [
+          "Advanced custom design and layouts",
+          "Additional pages and navigation",
+          "Blog or CMS",
+          "Third-party integrations",
+          "Booking tools or CRM connectivity",
+          "Interactive content and advanced forms",
+          "Additional performance and functionality testing",
+          "Project-specific functionality"
+        ],
+        "excludedTitle": "Excluded unless in the proposal",
+        "excluded": [
+          "E-commerce",
+          "IDX/MLS",
+          "Custom applications",
+          "AI agents",
+          "Advanced integrations",
+          "Professional content production",
+          "Third-party fees",
+          "Ongoing maintenance"
+        ],
+        "limits": "These are possible features, not a promise that every feature is included in the starting price. The final scope, deliverables, timeline, revision rounds, and fixed project price are defined in a written proposal."
+      }
+    ]
+  },
+  "care": {
+    "title": "Optional care",
+    "note": "monthly · month-to-month · cancel any time",
+    "packages": [
+      {
+        "id": "essential-care",
+        "tier": "Essential Care",
+        "name": "Monitoring & checks",
+        "price": 49,
+        "billing": "month",
+        "short": "Your site watched every month: uptime, SSL, domain and forms.",
+        "best": "Owners who want peace of mind and rarely need changes.",
+        "bestDraft": true,
+        "included": [
+          "Website uptime monitoring",
+          "Monthly navigation and contact form checks",
+          "SSL and domain expiration monitoring",
+          "Routine technical checks and applicable updates",
+          "Basic website health checks",
+          "Monthly status summary"
+        ],
+        "excluded": [
+          "Content updates",
+          "New pages or features",
+          "Redesigns",
+          "Advanced SEO",
+          "Emergency or 24/7 support",
+          "Major repairs or third-party failures",
+          "Hosting, domain, or third-party subscription fees"
+        ],
+        "limits": "Month-to-month. Cancel any time, with no long-term commitment."
+      },
+      {
+        "id": "business-care",
+        "tier": "Business Care",
+        "name": "Checks + small updates",
+        "price": 99,
+        "billing": "month",
+        "short": "Everything in Essential Care, plus up to 60 minutes of small updates.",
+        "best": "Owners who change hours, prices, photos or text now and then.",
+        "bestDraft": true,
+        "includedTitle": "Everything in Essential Care, plus",
+        "included": [
+          "Up to 60 minutes of small content updates per month",
+          "Text updates",
+          "Replacing existing images",
+          "Updating contact information or business hours",
+          "Minor changes to existing content",
+          "Basic website-related assistance"
+        ],
+        "excluded": [
+          "More than 60 minutes of monthly updates",
+          "New pages",
+          "Major design changes",
+          "New features or integrations",
+          "Copywriting, graphics, or photography",
+          "Advanced SEO and marketing",
+          "AI API usage",
+          "Emergency or 24/7 support",
+          "Third-party services and subscriptions"
+        ],
+        "limits": "Unused update time does not roll over. Month-to-month; cancel any time, with no long-term commitment."
+      }
+    ]
+  },
+  "statement": ["No long-term contracts.", "Your website stays yours."],
+  "principles": [
+    "Website development is a one-time project fee.",
+    "Maintenance subscriptions are always optional.",
+    "No mandatory annual maintenance contracts.",
+    "Clients retain their websites after canceling maintenance.",
+    "Ownership of agreed custom deliverables transfers after full payment, subject to third-party licenses.",
+    "Domain, hosting, software subscriptions, and AI API costs are disclosed before launch.",
+    "Additional work requires client approval before billing.",
+    "Each project has a clearly defined scope.",
+    "The 30-day bug-fix warranty covers defects in the agreed development work, not new features or third-party issues."
+  ],
+  "faq": [
+    { "q": "Do I have to purchase maintenance?", "a": "No. Maintenance is always optional, and your website works without it." },
+    { "q": "Will I own my website?", "a": "Yes. Ownership of the agreed custom work transfers to you after full payment, subject to any third-party licenses (fonts, plugins, stock images)." },
+    { "q": "Are domain and hosting included?", "a": "No. Domain, hosting and any software subscriptions are paid by you directly, and every cost is shown to you before launch." },
+    { "q": "Can I cancel maintenance anytime?", "a": "Yes. Both care plans are month-to-month. There are no annual contracts, and you keep your website." },
+    { "q": "What if I need more pages or features?", "a": "They are quoted separately, and nothing extra is billed without your approval first." },
+    { "q": "What happens if something breaks after launch?", "a": "For 30 days, defects in the work I built are fixed free. After that, a care plan or a separate quote covers it. New features and third-party problems are not part of the warranty." },
+    { "q": "Can I update the website myself?", "a": "It depends on whether a CMS (a content management system, an editor for text and images) is included in your project. With a CMS, you can make everyday edits yourself. Without one, changes are made in the code, so you would ask me, or use Business Care for up to 60 minutes of small updates a month. Whether a CMS is included is agreed and written into your proposal before development begins." },
+    { "q": "Are AI assistants included in the website packages?", "a": "No. AI chatbots and automation are a separate service, quoted on their own." },
+    { "q": "Will I know about recurring costs before launch?", "a": "Yes. Domain, hosting, software and any AI API costs are listed before launch." }
+  ]
+}

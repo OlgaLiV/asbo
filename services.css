@@ -1,0 +1,102 @@
+/* Services & Pricing panel (Direction A: editorial rows). Uses the tokens from asbo.css. */
+.sheet.svc { --ease: cubic-bezier(.22, 1, .36, 1); --peri-tint: #E9EBF6; }
+.sheet .sheet-lede { color: var(--ink-2); max-width: 560px; font-size: 17px; margin: 0; }
+
+.svc-group { margin-top: 64px; }
+.svc-label { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; padding-bottom: 14px; border-bottom: 1px solid #171A2E; margin-bottom: 4px; }
+.svc-label h3 { margin: 0; font: 300 clamp(26px, 3.4vw, 38px)/1 var(--display); letter-spacing: -.035em; }
+.svc-label .mono { font-size: 10px; text-align: right; }
+
+/* Package rows: the whole row is the button */
+.svc-pkg { border-bottom: 1px solid rgba(18, 21, 42, .1); }
+.svc-head { all: unset; box-sizing: border-box; display: block; width: 100%; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.svc-head:focus-visible { outline: 2px solid var(--accent); outline-offset: 6px; border-radius: 16px; }
+.svc-row { display: grid; grid-template-columns: 48px minmax(0, 1fr) auto 38px; gap: 24px; align-items: center; padding: 30px 0; }
+.svc-num { font: 400 12px var(--mono); color: var(--ink-3); }
+.svc-main { display: block; }
+.svc-tier { display: block; font-size: 10px; margin-bottom: 6px; }
+.svc-name { display: block; font: 300 clamp(30px, 4.2vw, 50px)/1.02 var(--display); letter-spacing: -.045em; margin: 0 0 8px; transition: color .3s; }
+.svc-short { display: block; color: var(--ink-2); font-size: 15.5px; max-width: 520px; }
+.svc-price { font: 400 clamp(22px, 2.7vw, 32px)/1 var(--brand); letter-spacing: -.01em; text-align: right; white-space: nowrap; }
+.svc-price .mono { display: block; font-size: 10px; margin-bottom: 8px; }
+.svc-per { font-size: .5em; }
+.svc-hint { display: inline-grid; place-items: center; width: 38px; height: 38px; border-radius: 50%; border: 1px solid rgba(18, 21, 42, .14); transition: transform .5s var(--ease), background .3s, border-color .3s, color .3s; }
+.svc-hint svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 1.8; }
+.svc-head:hover .svc-name { color: var(--peri); }
+.svc-head:hover .svc-hint { border-color: var(--accent); color: var(--accent); }
+.open > .svc-head .svc-hint { transform: rotate(45deg); background: #171A2E; border-color: #171A2E; color: #fff; }
+.svc-pkg.open .svc-name { color: var(--peri); }
+
+/* Smooth height: grid rows 0fr -> 1fr animates the real height, so nothing snaps */
+.svc-body { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .55s var(--ease); }
+.open > .svc-body { grid-template-rows: 1fr; }
+.svc-inner { overflow: hidden; min-height: 0; }
+.svc-inner > div { opacity: 0; transform: translateY(-6px); transition: opacity .35s ease, transform .55s var(--ease); }
+.open .svc-inner > div { opacity: 1; transform: none; transition-delay: .12s; }
+.svc-pkg .svc-inner > div { padding: 4px 0 40px 72px; }
+
+.svc-best { font: 300 22px/1.35 var(--display); letter-spacing: -.02em; color: #171A2E; margin: 0 0 26px; max-width: 640px; }
+.svc-cols { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px; }
+.svc-cols h4 { margin: 0 0 10px; font-size: 10px; }
+.svc-cols ul { margin: 0; padding: 0; list-style: none; }
+.svc-cols li { position: relative; padding: 5px 0 5px 20px; font-size: 14.5px; line-height: 1.45; color: rgba(18, 21, 42, .82); }
+.svc-cols li::before { position: absolute; left: 0; top: 5px; font-size: 13px; }
+.svc-in li::before { content: '✓'; color: var(--accent); }
+.svc-out li::before { content: '–'; color: var(--ink-3); }
+.svc-limits { margin: 0 0 22px; font-size: 14.5px; color: var(--ink-2); }
+.sheet.svc .btn { white-space: nowrap; }
+
+/* Optional care: its own tinted block, clearly apart from the one-time builds */
+.svc-care { background: var(--peri-tint); border-radius: 22px; padding: 26px clamp(18px, 3vw, 36px) 10px; }
+.svc-care .svc-label { border-color: var(--peri); }
+.svc-care .svc-pkg { border-color: rgba(94, 109, 168, .2); }
+.svc-care .svc-pkg:last-child { border-bottom: 0; }
+.svc-care .svc-name { font-size: clamp(26px, 3.4vw, 40px); }
+
+/* Clear pricing statement */
+.svc-statement { margin-top: 96px; }
+.svc-statement > .mono { color: var(--accent); margin: 0 0 18px; }
+.svc-big { font: 300 clamp(38px, 6vw, 74px)/1.02 var(--display); letter-spacing: -.05em; margin: 0 0 32px; max-width: 900px; }
+.svc-big em { font-style: normal; color: var(--peri); }
+.svc-principles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px 28px; margin: 0; padding: 0; list-style: none; }
+.svc-principles li { font-size: 14.5px; color: var(--ink-2); padding-top: 12px; border-top: 1px solid rgba(18, 21, 42, .1); }
+
+/* FAQ: same interaction, quieter */
+.svc-faq { margin-top: 80px; }
+.svc-faq h3 { margin: 0 0 10px; font: 300 clamp(26px, 3.4vw, 38px)/1 var(--display); letter-spacing: -.035em; }
+.svc-q { border-bottom: 1px solid rgba(18, 21, 42, .1); }
+.svc-qrow { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 18px 0; font-size: 17px; }
+.svc-q .svc-hint { width: 30px; height: 30px; flex: none; }
+.svc-q .svc-inner p { margin: 0; padding: 0 0 20px; max-width: 680px; color: var(--ink-2); }
+
+.svc-end { margin-top: 64px; display: flex; flex-wrap: wrap; gap: 18px; align-items: center; }
+.svc-ask { border: 0; background: none; padding: 0; color: var(--ink-2); text-decoration: underline; text-underline-offset: 4px; cursor: pointer; font-size: 15px; }
+.svc-ask:hover { color: var(--accent); }
+
+@media (max-width: 860px) {
+  /* Phones: all tabs stay reachable; the pill bar scrolls sideways instead of hiding tabs */
+  .pillnav { max-width: calc(100vw - 150px); overflow-x: auto; scrollbar-width: none; }
+  .pillnav::-webkit-scrollbar { display: none; }
+  .pillnav .pill:not(.active):not([data-open="work"]) { display: inline-block; }
+  .pillnav .pill, .pillnav .icon-btn { flex: none; }
+}
+@media (max-width: 760px) {
+  .svc-group { margin-top: 48px; }
+  .svc-label { flex-direction: column; gap: 6px; }
+  .svc-label .mono { text-align: left; }
+  .svc-row { grid-template-columns: minmax(0, 1fr) 38px; gap: 12px 14px; padding: 24px 0; }
+  .svc-num { display: none; }
+  .svc-price { grid-column: 1; grid-row: 2; text-align: left; }
+  .svc-price .mono { display: inline; margin: 0 8px 0 0; }
+  .svc-hint { grid-column: 2; grid-row: 1 / span 2; align-self: start; }
+  .svc-pkg .svc-inner > div { padding: 0 0 32px; }
+  .svc-cols { grid-template-columns: 1fr; gap: 22px; }
+  .svc-best { font-size: 19px; }
+  .svc-care { padding: 20px 16px 6px; }
+  .svc-statement { margin-top: 72px; }
+  .svc-principles { grid-template-columns: 1fr; gap: 0; }
+  .svc-principles li { padding: 12px 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .svc-body, .svc-inner > div, .svc-hint, .svc-name { transition: none !important; }
+}
