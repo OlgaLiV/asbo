@@ -69,7 +69,7 @@ Record each run:
 
 | Date | Device | iOS | Browser | Build (commit) | Steps passed | Defects |
 |---|---|---|---|---|---|---|
-| | | | | | | |
+| 2026-10-31 | iPhone (model not recorded) | not recorded | Safari | 1313423 (local preview) | nav, Services package switch, terminal (no zoom, wrapping, RU/UK) | none (reported "looks good" by Olga) |
 
 ## 4. Release checklist (adapted from §11)
 
@@ -83,10 +83,10 @@ Record each run:
 
 | ID | Found | Area | Steps | Expected | Actual | Status |
 |---|---|---|---|---|---|---|
-| D1 | 2026-10-31 | Terminal (iPhone) | open terminal | fits at 100% zoom | page zooms in; text cut off | fixed in simulation (16 px input, wrapping, visible-height sizing); iPhone check pending |
+| D1 | 2026-10-31 | Terminal (iPhone) | open terminal | fits at 100% zoom | page zooms in; text cut off | fixed; verified on iPhone 2026-10-31 |
 | D2 | 2026-10-31 | ASBO languages | ask in Russian | answer in Russian | English "don't know" | fixed (asbo-intents.js, EN/RU/UK); RU/UK wording pending Olga's review |
-| D3 | 2026-10-31 | Phone nav (iPhone) | load site | nav clear of right edge | nav near the edge | not reproduced in simulation; likely the D1 zoom; iPhone check pending |
-| D4 | 2026-10-31 | Services (phone) | open a package | moves to top of panel | stays in place | fixed (all 3 setups) |
+| D3 | 2026-10-31 | Phone nav (iPhone) | load site | nav clear of right edge | nav near the edge | fixed ("olga." hidden on phones, edge fade); verified on iPhone 2026-10-31 |
+| D4 | 2026-10-31 | Services (phone) | open a package | moves to top of panel | stays in place; later jumped when switching | fixed; verified on iPhone 2026-10-31 |
 | D5 | 2026-10-31 | Accessibility | axe scan | WCAG AA contrast | pale labels below AA contrast | accepted, non-blocking (Olga, 2026-10-31) |
 | D6 | 2026-10-31 | Accessibility (phone) | measure nav | tap targets ≥ 44 px | icons 34 px, tabs 30 px tall | accepted, non-blocking (Olga, 2026-10-31) |
 | D7 | 2026-10-31 | ASBO prices | ask about prices | match services.json | quoted old AI-bot prices | fixed (prices read from services.json) |
