@@ -40,6 +40,8 @@ jobs:
   deploy:
     needs: test
     runs-on: ubuntu-latest
+    outputs:
+      page_url: ${{ steps.pages.outputs.page_url }}
     environment:
       name: github-pages
       url: ${{ steps.pages.outputs.page_url }}
@@ -68,10 +70,12 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npx playwright install --with-deps chromium webkit
+      # Test the address Pages reports (the custom domain, http or https as configured).
       - name: Smoke tests against the live site
         run: npm run test:live
         env:
           CI: true
+          BASE_URL: ${{ needs.deploy.outputs.page_url }}
       - name: Record release
         if: always()
-        run: echo "Released commit ${GITHUB_SHA} to https://olgaliv.github.io/asbo/" >> "$GITHUB_STEP_SUMMARY"
+        run: echo "Released commit ${GITHUB_SHA} to ${{ needs.deploy.outputs.page_url }}" >> "$GITHUB_STEP_SUMMARY"

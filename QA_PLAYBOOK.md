@@ -56,7 +56,7 @@ WebKit narrows the gap but is not iOS. A green run means "no regressions found i
 Do this after any change to layout, navigation, the terminal, Services or animations. Clear the tab first
 (close and reopen it) so no earlier zoom state carries over.
 
-1. Open https://olgaliv.github.io/asbo/ — the entrance plays smoothly; no pixel streaks remain.
+1. Open asboagent.com — the entrance plays smoothly; no pixel streaks remain.
 2. Logo, "olga." and the top nav are fully visible; nav doesn't touch the right edge; nav scrolls sideways.
 3. Tap the chat icon — the terminal opens **without zooming in**; nothing is cut off on the right.
 4. Type a long message in English, then Russian, then Ukrainian — text wraps; the keyboard doesn't hide the input.

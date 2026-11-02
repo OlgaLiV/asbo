@@ -1,6 +1,6 @@
 # ASBO portfolio: rules for AI agents
 
-Static site (HTML/CSS/JS, no build) published on GitHub Pages at https://olgaliv.github.io/asbo/.
+Static site (HTML/CSS/JS, no build) published on GitHub Pages at http://asboagent.com/ (custom domain; the old olgaliv.github.io/asbo/ address redirects there).
 Owner: Olga (AI Studio by Olga). Detailed QA process: **QA_PLAYBOOK.md**. Design tokens: **DESIGN.md**.
 Source methodology: `../Universal_AI_Project_Playbook.md` (kept outside this public repo).
 
