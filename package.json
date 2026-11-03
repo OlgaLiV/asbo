@@ -6,7 +6,7 @@
   "scripts": {
     "test": "playwright test",
     "test:smoke": "playwright test --grep @smoke",
-    "test:live": "BASE_URL=${BASE_URL:-http://asboagent.com/} playwright test --grep @smoke",
+    "test:live": "BASE_URL=${BASE_URL:-https://asboagent.com/} playwright test --grep @smoke",
     "report": "playwright show-report"
   },
   "devDependencies": {
