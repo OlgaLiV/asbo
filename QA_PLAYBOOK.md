@@ -36,6 +36,7 @@ Phone tests also resize to 320, 375, 390 and 430 px; the no-sideways-scroll swee
 | navigation | every tab opens/closes (×, Escape, click outside), phone nav inside the screen, no sideways scroll |
 | services | packages and prices match `services.json`, one open at a time, reset after leaving, opened package scrolls to the top, keyboard |
 | terminal | fits phone screens, long EN/RU/UK text wraps, input ≥ 16 px (no iOS zoom), conversation scroll doesn't move the page, commands, chips |
+| mobile-layout | phone nav slides away instead of covering the robot (several widths, landscape, every scroll step) and returns on scroll up or focus; panel close buttons stay in their corner at any scroll position (long Services content); terminal stays inside the visible screen with a simulated keyboard, keeps the latest answer above the input, restores when the keyboard closes; suggested questions don't pop up the phone keyboard |
 | multilingual | services, prices, contact, projects and unknown questions in EN/RU/UK answered in the same language with the same facts |
 | accessibility | axe WCAG 2 A/AA on home, Services and terminal; accessible names; keyboard; 44 px touch targets |
 | ai-logic | ASBO reply checker (prices, wording, languages), price loading and fallback, what the model is told, scripted fallbacks pass the checker |
@@ -63,18 +64,27 @@ Do this after any change to layout, navigation, the terminal, Services or animat
 
 1. Open https://asboagent.com/ — the entrance plays smoothly; no pixel streaks remain.
 2. Logo, "olga." and the top nav are fully visible; nav doesn't touch the right edge; nav scrolls sideways.
-3. Tap the chat icon — the terminal opens **without zooming in**; nothing is cut off on the right.
-4. Type a long message in English, then Russian, then Ukrainian — text wraps; the keyboard doesn't hide the input.
-5. Close the keyboard and the terminal — the page is not left zoomed or shifted.
-6. Open Services — tap a package: it opens and moves to the top of the panel; tap another: the first closes.
-7. Close Services, reopen — everything is collapsed.
-8. Rotate to landscape and back — nothing overflows.
+3. Scroll down slowly past the robot — the nav slides up out of the way and never sits on the robot's head.
+   Scroll up a little — the nav comes back and its tabs work. Back at the top, the nav is in place.
+4. Tap a suggested question — the terminal opens with the answer and **no keyboard**; the header, × and the answer's
+   button are visible.
+5. Tap the terminal input — the keyboard opens; the terminal's top edge and × stay visible, the latest answer and
+   its button are above the input, not under it. Tap ×: the terminal closes.
+6. Tap the chat icon — the terminal opens **without zooming in**; nothing is cut off on the right.
+7. Type a long message in English, then Russian, then Ukrainian — text wraps; the keyboard doesn't hide the input.
+8. Close the keyboard (tap ✓ or swipe it down) — the terminal returns to its normal size and position; the page is
+   not left zoomed or shifted.
+9. Open Services — tap a package: it opens and moves to the top of the panel; tap another: the first closes.
+10. In Services, Work and About, scroll to the bottom — the × stays in the top corner; tap it: the panel closes.
+11. Close Services, reopen — everything is collapsed.
+12. Rotate to landscape and back — nothing overflows; repeat step 3 in landscape.
 
 Record each run:
 
 | Date | Device | iOS | Browser | Build (commit) | Steps passed | Defects |
 |---|---|---|---|---|---|---|
 | 2026-10-31 | iPhone (model not recorded) | not recorded | Safari | 1313423 (local preview) | nav, Services package switch, terminal (no zoom, wrapping, RU/UK) | none (reported "looks good" by Olga) |
+| 2026-11-23 | iPhone (model not recorded) | not recorded | Safari | 3e14822 + uncommitted mobile fixes (local preview) | nav slides away on scroll and returns (portrait, landscape), suggested question without keyboard, terminal with keyboard open and closed, × closes it, panel × stays reachable in Services, Work, About | none (all checks passed, reported by Olga) |
 
 ## 4. Release checklist (adapted from §11)
 
@@ -94,4 +104,7 @@ Record each run:
 | D4 | 2026-10-31 | Services (phone) | open a package | moves to top of panel | stays in place; later jumped when switching | fixed; verified on iPhone 2026-10-31 |
 | D5 | 2026-10-31 | Accessibility | axe scan | WCAG AA contrast | pale labels below AA contrast | accepted, non-blocking (Olga, 2026-10-31) |
 | D6 | 2026-10-31 | Accessibility (phone) | measure nav | tap targets ≥ 44 px | icons 34 px, tabs 30 px tall | accepted, non-blocking (Olga, 2026-10-31) |
+| D8 | 2026-11-23 | Phone nav (iPhone) | scroll down | nav clear of the robot | nav covers the robot's head | fixed (nav slides away on scroll down, returns on scroll up); verified on iPhone 2026-11-23 (local preview) |
+| D9 | 2026-11-23 | Terminal (iPhone) | tap a suggested question or the input | terminal usable with the keyboard | terminal jumps up; header and × hidden; answer button under the input | fixed (terminal pinned to the visible screen; no keyboard for suggested questions); verified on iPhone 2026-11-23 (local preview) |
+| D10 | 2026-11-23 | Panels (iPhone) | scroll Services or Work | × reachable | × scrolls away | fixed (× sticks to the corner, all panels); verified on iPhone 2026-11-23 (local preview) |
 | D7 | 2026-10-31 | ASBO prices | ask about prices | match services.json | quoted old AI-bot prices | fixed (prices read from services.json) |

@@ -260,14 +260,35 @@ async function askAI(q, lang) {
 }
 
 // ---------- Terminal ----------
-// Phones: size the terminal to the visible screen, which shrinks when the on-screen keyboard opens.
-if (window.visualViewport) {
-  const setVvh = () => document.documentElement.style.setProperty('--vvh', `${Math.round(visualViewport.height)}px`);
-  visualViewport.addEventListener('resize', setVvh);
-  setVvh();
-}
 const log = $('[data-log]');
 const input = $('#q');
+// Phones: the on-screen keyboard shrinks only the *visible* viewport; fixed elements still fill the larger layout
+// viewport, and iPhone Safari pans the page to reveal the input. So the terminal's overlay is pinned to the visible
+// viewport (its height and its offset), which keeps the header, close button, conversation and input on screen.
+// Keep the latest message and its button in view when the chat area changes size (keyboard opening, rotation),
+// unless the visitor has scrolled up to read earlier messages. Scroll events caused by the resize itself are
+// ignored for a moment, so they aren't mistaken for the visitor scrolling up.
+let logAtEnd = true, layoutShiftUntil = 0;
+log.addEventListener('scroll', () => {
+  if (performance.now() < layoutShiftUntil) return;
+  logAtEnd = log.scrollHeight - log.scrollTop - log.clientHeight < 24;
+}, { passive: true });
+const keepLogAtEnd = () => { if (logAtEnd) log.scrollTop = log.scrollHeight; };
+if (window.ResizeObserver) new ResizeObserver(keepLogAtEnd).observe(log);
+if (window.visualViewport) {
+  const vv = window.visualViewport;
+  const setVv = () => {
+    const html = document.documentElement;
+    layoutShiftUntil = performance.now() + 400;
+    html.style.setProperty('--vvh', `${Math.round(vv.height)}px`);
+    html.style.setProperty('--vvtop', `${Math.round(vv.offsetTop)}px`);
+    html.classList.toggle('kb-open', window.innerHeight - vv.height > 150);
+    requestAnimationFrame(keepLogAtEnd);
+  };
+  vv.addEventListener('resize', setVv);
+  vv.addEventListener('scroll', setVv);
+  setVv();
+}
 function addLine(cls, text) {
   const p = document.createElement('p');
   p.className = cls;
@@ -323,14 +344,19 @@ $('[data-form]').addEventListener('submit', (e) => { e.preventDefault(); ask(inp
 
 // ---------- Panels ----------
 let openPanel = null, lastFocus = null;
-function open(name) {
+// typing: put the cursor in the terminal input. A suggested question on a touch screen asks without it, so the
+// keyboard doesn't jump up over the answer; the visitor taps the input when they want to type.
+function open(name, { typing = true } = {}) {
   if (openPanel) close(false);
   const panel = $(`[data-panel="${name}"]`);
   if (!panel) return;
   lastFocus = document.activeElement;
   panel.hidden = false;
   openPanel = panel;
-  (name === 'terminal' ? input : $('.close', panel)).focus();
+  // Panels always open at the top (browsers would otherwise restore where the visitor left off)
+  const sheet = $('.sheet', panel);
+  if (sheet) sheet.scrollTop = 0;
+  (name === 'terminal' && typing ? input : $('.close', panel)).focus();
 }
 function close(restore = true) {
   if (!openPanel) return;
@@ -341,7 +367,23 @@ function close(restore = true) {
 $$('[data-open]').forEach((b) => b.addEventListener('click', () => open(b.dataset.open)));
 $$('[data-close]').forEach((b) => b.addEventListener('click', () => close()));
 $$('.overlay').forEach((o) => o.addEventListener('click', (e) => { if (e.target === o) close(); }));
-$$('[data-q]').forEach((b) => b.addEventListener('click', () => { open('terminal'); ask(b.dataset.q); }));
+const touch = matchMedia('(hover: none) and (pointer: coarse)');
+$$('[data-q]').forEach((b) => b.addEventListener('click', () => { open('terminal', { typing: !touch.matches }); ask(b.dataset.q); }));
+
+// Phones: the fixed nav slides up out of the way while the visitor scrolls down (so it never sits on the robot)
+// and comes back as soon as they scroll up, reach the top, or tab into it.
+const nav = $('.pillnav');
+const phone = matchMedia('(max-width: 860px)');
+let navY = window.scrollY;
+window.addEventListener('scroll', () => {
+  const y = window.scrollY, dy = y - navY;
+  nav.classList.add('nav-auto');
+  if (!phone.matches || y < 40) { nav.classList.remove('nav-away'); navY = y; return; }
+  if (Math.abs(dy) < 8) return;
+  nav.classList.toggle('nav-away', dy > 0);
+  navY = y;
+}, { passive: true });
+nav.addEventListener('focusin', () => nav.classList.remove('nav-away'));
 
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape' && openPanel) { e.preventDefault(); close(); return; }
