@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>ASBO | Olga's AI, ask her anything</title>
   <meta name="description" content="ASBO is AI Studio by Olga. Meet Asbo, Olga's robot assistant, and ask about her AI agents, projects and prices.">
+  <!-- ASBO AI: URL of the chat Worker (e.g. https://asbo-chat.<account>.workers.dev/chat). Empty = scripted answers only. -->
+  <meta name="asbo-ai-endpoint" content="">
   <link rel="icon" href="assets/logo-mark.webp">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -187,7 +189,7 @@
         </div>
         <form class="term-input" data-form>
           <label for="q">guest@asbo:~$</label>
-          <input id="q" name="q" autocomplete="off" spellcheck="false" placeholder="what has she built?">
+          <input id="q" name="q" autocomplete="off" spellcheck="false" maxlength="500" placeholder="what has she built?">
         </form>
       </div>
     </div>
@@ -252,9 +254,9 @@
         <img src="assets/olga.jpg" alt="Portrait of Olga" width="433" height="520" loading="lazy">
         <div>
           <h2 id="about-h">hi, i'm olga.</h2>
-          <p>For nine years I worked as a QA automation engineer, the person whose job is to break software before customers do. That habit is why I started ASBO, AI Studio by Olga.</p>
+          <p>I have 5+ years of experience in QA automation, where my job was to break software before customers do. That habit is why I started ASBO, AI Studio by Olga.</p>
           <p>I build AI agents and automations for salons, studios, real estate offices and local businesses: assistants that answer the 9 p.m. message, book the right slot and send the reminder on the right day. I listen first, build around the tools you already use, and test everything before launch.</p>
-          <ul class="facts mono"><li><b>9 yrs</b> qa automation</li><li><b>3</b> languages</li><li><b>1</b> person, start to launch</li></ul>
+          <ul class="facts mono"><li><b>5+ yrs</b> qa automation</li><li><b>3</b> languages</li><li><b>1</b> person, start to launch</li></ul>
         </div>
       </div>
     </section>

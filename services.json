@@ -1,6 +1,6 @@
 {
-  "_about": "Services & Pricing content for the ASBO site and, later, ASBO's knowledge base. Edit text and prices here; services.js builds the panel from this file. bestDraft: true marks a 'Best for' line Olga has not approved yet; it is not shown on the site until set to false.",
-  "intro": "Websites built once, for a fixed price. Care plans if you want them. Every price is on this page.",
+  "_about": "Services & Pricing content for the ASBO site and ASBO's knowledge (the AI Worker reads prices from this file). Approved wording: asbo-previews/asbo-knowledge-DRAFT.md. bestDraft: true hides a 'Best for' line Olga has not approved.",
+  "intro": "Websites start at the prices below, and I agree the scope and final price with you before work begins. Optional care plans have fixed monthly prices. Other projects are quoted individually.",
   "calendly": "https://calendly.com/ai-studio-by-olga",
   "websites": {
     "title": "Website development",
@@ -11,75 +11,75 @@
         "tier": "Starter",
         "name": "One-Page Website",
         "price": 850,
-        "from": false,
+        "from": true,
         "billing": "one-time",
-        "short": "One custom-designed page with up to 5 sections, ready on every screen.",
+        "short": "One page with up to five sections, designed around your business and ready on every screen.",
         "best": "A new or small business that needs one clear, professional page to send people to.",
         "bestDraft": false,
         "included": [
-          "One custom-designed page with up to 5 sections",
-          "Responsive desktop, tablet, and mobile layouts",
-          "Business branding using client-provided assets",
-          "Contact form and social media links",
-          "Basic on-page SEO setup",
-          "2 rounds of revisions",
-          "Domain connection and deployment",
-          "30-day development bug-fix warranty"
+          "One page with up to five sections",
+          "An individual visual direction for your business: we look at references together, and I can suggest a color palette",
+          "Responsive layouts for desktop and mobile",
+          "Contact buttons and a simple contact form",
+          "Links to your social media accounts",
+          "Basic search-engine preparation",
+          "Your content placed on the page with light editing, plus a small selection of free images",
+          "3 revision rounds (each round is one list of your feedback)",
+          "Testing before launch, with a short report of what was checked",
+          "Connecting your domain and publishing the site",
+          "Fixes for defects in my agreed work for 30 days after launch"
         ],
         "excluded": [
-          "Additional pages or sections",
-          "Logo design and complete branding",
-          "Professional copywriting, photography, or video",
-          "E-commerce and payment systems",
-          "Booking systems, CRM integrations, or databases",
-          "AI chatbots and automation",
-          "Complex animations and interactive features",
-          "Advanced SEO and marketing",
-          "Domain, hosting, and third-party fees",
-          "Ongoing maintenance"
+          "Additional sections, animation, and new functionality or integrations",
+          "E-commerce, payment and booking systems, CRM integrations and databases",
+          "Logo design and full branding; advanced SEO and marketing",
+          "A CMS (an editor to change content yourself)",
+          "More extensive content work and additional revision rounds",
+          "An AI assistant (a separately quoted project)",
+          "Domain, hosting, necessary third-party services and paid stock-image licenses (paid by you directly)",
+          "Ongoing care (optional)"
         ],
-        "limits": "The 30-day warranty covers defects in the agreed development work, not new features or third-party issues."
+        "limits": "$850 is the starting price for this base scope. I agree the scope and final price with you before work begins. If you need something that isn't included, I'll discuss your requirements and confirm whether I can provide it and what it would cost. A separate design mockup is only included if we agree on it for your project. Website materials and access are handed over after full payment, subject to third-party licenses.",
+        "excludedTitle": "Not included in the starting price"
       },
       {
         "id": "business",
         "tier": "Business",
         "name": "Business Website",
         "price": 1800,
-        "from": false,
+        "from": true,
         "billing": "one-time",
-        "short": "The base package for up to 5 pages, custom-designed, with galleries, maps and analytics.",
-        "best": "An established local business that needs room for services, a gallery, an about page and contact.",
+        "short": "Up to five pages, designed around your business and ready on every screen.",
+        "best": "A business that needs space to present its services, tell its story and make it easy for customers to get in touch.",
         "bestDraft": false,
         "included": [
-          "Up to 5 individual pages",
-          "Custom design tailored to the business",
-          "Responsive layouts",
-          "Navigation and calls to action",
-          "Galleries, portfolio sections, or service pages",
-          "Contact form with basic spam protection",
-          "Social media and Google Maps integration where applicable",
-          "Basic on-page SEO",
-          "Analytics setup",
-          "2 rounds of revisions",
-          "Website testing and deployment",
-          "30-day development bug-fix warranty"
+          "Up to five pages",
+          "An individual visual direction for your business: we look at references together, and I can suggest a color palette",
+          "Responsive layouts for desktop and mobile",
+          "Clear navigation and calls to action",
+          "Contact buttons and a simple contact form",
+          "Links to your social media accounts",
+          "Basic search-engine preparation",
+          "Your content placed with light editing, plus a small selection of free images",
+          "3 revision rounds (each round is one list of your feedback)",
+          "Testing before launch, with a short report of what was checked",
+          "Connecting your domain and publishing the site",
+          "Fixes for defects in my agreed work for 30 days after launch"
         ],
         "excluded": [
-          "More than 5 pages",
-          "Logo design and full branding",
-          "Professional copywriting and photography",
-          "E-commerce and payment processing",
-          "Custom booking systems",
-          "AI agents and automation",
-          "CRM and MLS/IDX integrations",
-          "Custom databases and customer portals",
-          "CMS unless included in the proposal",
-          "Advanced SEO and advertising",
-          "Complex interactive functionality",
-          "Domain, hosting, and third-party subscriptions",
-          "Ongoing maintenance"
+          "Additional pages, and new features or integrations",
+          "A CMS (an editor to change content yourself)",
+          "Additional revision rounds",
+          "Logo design and full branding; advanced SEO and marketing",
+          "E-commerce, payment and booking systems; CRM and MLS/IDX integrations",
+          "Custom databases and client portals",
+          "Professional copywriting and photography; complex interactive functionality",
+          "An AI assistant (a separately quoted project)",
+          "Domain, hosting, necessary third-party services and paid stock-image licenses (paid by you directly)",
+          "Ongoing care (optional)"
         ],
-        "limits": "A CMS is only included when the proposal says so. Extra pages, design work, galleries or features can be added for an extra fee, quoted and approved before development begins. The final price and scope are agreed in writing before development begins. The 30-day warranty covers defects in the agreed work, not new features or third-party issues."
+        "limits": "$1,800 is the starting price for this base scope. A gallery, Google Maps and analytics can be added depending on your project. The final price depends on the scope, content assistance, features and your other requirements, and I agree it with you before work begins. If you need something that isn't included, I'll discuss your requirements and confirm whether I can provide it and what it would cost. A separate design mockup is only included if we agree on it for your project. Website materials and access are handed over after full payment, subject to third-party licenses.",
+        "excludedTitle": "Not included in the starting price"
       },
       {
         "id": "advanced",
@@ -91,29 +91,51 @@
         "short": "For technically complex projects: custom functionality, CMS, advanced integrations or business logic.",
         "best": "A business that needs a blog or CMS, booking or CRM connections, or functionality built for its own process.",
         "bestDraft": false,
-        "includedTitle": "Possible features",
         "included": [
-          "Advanced custom design and layouts",
-          "Additional pages and navigation",
-          "Blog or CMS",
-          "Third-party integrations",
-          "Booking tools or CRM connectivity",
-          "Interactive content and advanced forms",
-          "Additional performance and functionality testing",
-          "Project-specific functionality"
+          "An individual visual direction for your business",
+          "Responsive layouts for desktop and mobile",
+          "Contact buttons and a simple contact form",
+          "Basic search-engine preparation",
+          "Testing of the agreed features before launch, with a short report of what was checked",
+          "Revision rounds: typically three, confirmed in your proposal (each round is one list of your feedback)",
+          "Connecting your domain and publishing the site",
+          "For 30 days after launch, you can report defects in my work within the agreed project scope, and I'll correct them"
         ],
-        "excludedTitle": "Excluded unless in the proposal",
+        "excludedTitle": "Not included in the starting price",
         "excluded": [
-          "E-commerce",
-          "IDX/MLS",
-          "Custom applications",
-          "AI agents",
-          "Advanced integrations",
+          "An AI assistant (a separately quoted project)",
+          "E-commerce and IDX/MLS",
+          "Logo design and full branding; advanced SEO and marketing",
           "Professional content production",
-          "Third-party fees",
-          "Ongoing maintenance"
+          "Additional revision rounds beyond the agreed number",
+          "Domain, hosting, necessary third-party services and paid stock-image licenses (paid by you directly)",
+          "Ongoing care (optional)"
         ],
-        "limits": "The difference from Business is technical complexity, not just the number of pages. These are possible features, not a promise that every feature is included in the starting price. The final scope, deliverables, timeline, revision rounds, and fixed project price are defined in a written proposal."
+        "limits": "$3,500 is the starting price for a custom website. The number of pages and features is tailored to your project and confirmed in your proposal. Your project may include a CMS or blog, custom forms, booking or CRM integrations, interactive content, or functionality tailored to your business. We'll discuss the features you need, and I'll confirm what's included and the final price in your proposal before work begins. Website materials and access are handed over after full payment, subject to third-party licenses."
+      }
+    ]
+  },
+  "webapps": {
+    "title": "Custom web applications",
+    "note": "scope and price agreed individually",
+    "packages": [
+      {
+        "id": "web-apps",
+        "tier": "Individual",
+        "name": "Custom Web Applications",
+        "quote": true,
+        "label": "agreed individually",
+        "billing": "individual",
+        "short": "I build custom web applications that help businesses manage their work or serve their customers. The scope and price are agreed individually.",
+        "best": "",
+        "bestDraft": true,
+        "includedTitle": "Examples of possible projects",
+        "included": [
+          "Internal team tools",
+          "Client portals",
+          "Applications supporting a specific business process"
+        ],
+        "limits": "These are examples of possible projects, not a fixed list of included features. The scope and price are agreed individually before work begins, and testing, defect fixes and other post-launch terms are agreed for each project."
       }
     ]
   },
@@ -219,55 +241,58 @@
     "No mandatory annual maintenance contracts.",
     "Clients retain their websites after canceling maintenance.",
     "Ownership of agreed custom deliverables transfers after full payment, subject to third-party licenses.",
-    "Domain, hosting, software subscriptions, and AI API costs are disclosed before launch.",
+    "Domain, hosting, software subscriptions and AI usage costs are disclosed before launch.",
     "Additional work requires client approval before billing.",
-    "Each project has a clearly defined scope.",
-    "The 30-day bug-fix warranty covers defects in the agreed development work, not new features or third-party issues."
+    "Each project has a clearly defined scope."
   ],
   "faq": [
     {
       "q": "Do I have to purchase maintenance?",
-      "a": "No. Maintenance is always optional, and your website works without it."
+      "a": "No. Care plans are always optional, and your website works without one."
     },
     {
       "q": "Will I own my website?",
-      "a": "Yes. Ownership of the agreed custom work transfers to you after full payment, subject to any third-party licenses (fonts, plugins, stock images)."
+      "a": "Yes. After full payment, I hand over the agreed website materials and access, and ownership of the agreed custom work transfers to you, subject to third-party licenses (such as fonts, plugins or stock images)."
     },
     {
       "q": "Are domain and hosting included?",
-      "a": "No. Domain, hosting and any software subscriptions are paid by you directly, and every cost is shown to you before launch."
+      "a": "No. Domain, hosting and any third-party services are paid by you directly to the providers, and I go through these costs with you before launch. Connecting your domain and publishing the site is part of my work."
     },
     {
-      "q": "Can I cancel maintenance anytime?",
-      "a": "Yes. Both care plans are month-to-month. There are no annual contracts, and you keep your website."
+      "q": "Can I cancel a care plan anytime?",
+      "a": "Yes. Both care plans are month-to-month, with no long-term contract, and you keep your website."
     },
     {
       "q": "Do I need Business or Advanced?",
-      "a": "It depends on technical complexity, not just the number of pages. Business is the base package for up to 5 pages, and more pages or design work can be added for an extra fee. Advanced is for projects that need custom functionality, a CMS, advanced integrations or business logic. Either way, the final price and scope are agreed in writing before development begins."
+      "a": "It depends on what your website needs to do. A Business Website starts at $1,800 and covers up to five pages. An Advanced Custom Website starts at $3,500 and is for technically complex projects, such as a CMS, custom forms, integrations or functionality tailored to your business; its pages and features are tailored to your project and confirmed in your proposal. Either way, I agree the scope and final price with you before work begins."
     },
     {
       "q": "What if I need more pages or features?",
-      "a": "For a new website, extra pages, design work, galleries or features can be added to your package for an extra fee, quoted and approved before development begins. For a website AI Studio by Olga already built, that's Additional Development, a one-time custom-quoted project. Nothing extra is billed without your approval first."
+      "a": "For a new website, extra pages or features are discussed and quoted separately, and the final price is agreed before work begins. For a website I've already built, that's Additional Development: a one-time project, quoted individually. Nothing extra is billed without your approval."
     },
     {
       "q": "Can you update or maintain a website someone else built?",
-      "a": "Not at this stage. AI Studio by Olga only maintains, modifies or redesigns websites it originally built. If your current website was made by another developer or agency, AI Studio by Olga can build you a completely new website from scratch."
+      "a": "Not at the moment. I only update, maintain or redesign websites I've built. If your current website was made by another developer or agency, I can build you a new website."
     },
     {
-      "q": "What happens if something breaks after launch?",
-      "a": "For 30 days, defects in the work I built are fixed free. After that, a care plan or a separate quote covers it. New features and third-party problems are not part of the warranty."
+      "q": "How is my website tested, and what if something breaks after launch?",
+      "a": "Every website package includes testing before launch and a short report describing what was checked. For an Advanced Custom Website, the checks depend on the features and scope we agree on. Testing can't guarantee a website will be completely error-free. For 30 days after launch, you can report defects in my work within the agreed project scope, and I'll correct them. New requests, features and content changes are separate work and are quoted individually."
     },
     {
       "q": "Can I update the website myself?",
-      "a": "It depends on whether a CMS (a content management system, an editor for text and images) is included in your project. With a CMS, you can make everyday edits yourself. Without one, changes are made in the code, so you would ask me, or use Business Care for up to 60 minutes of small updates a month. Whether a CMS is included is agreed and written into your proposal before development begins."
+      "a": "It depends on whether your website has a CMS (an editor for text and images). A CMS isn't part of the One-Page or Business starting price, but it can be discussed and quoted; on an Advanced Custom Website it can be one of the features confirmed in your proposal. Without a CMS, changes are made in the code: you can request a one-off change, quoted individually, or choose Business Care, which includes up to 60 minutes of small content updates a month."
     },
     {
       "q": "Are AI assistants included in the website packages?",
-      "a": "No. AI chatbots and automation are a separate service, quoted on their own."
+      "a": "No. An AI assistant isn't part of any website's starting price. It can be added as a separately quoted project, and we can discuss it together with your website. AI usage and other third-party costs are shown in advance and paid separately."
     },
     {
       "q": "Will I know about recurring costs before launch?",
-      "a": "Yes. Domain, hosting, software and any AI API costs are listed before launch."
+      "a": "Yes. Domain, hosting, other third-party services and any AI usage costs are disclosed before launch."
+    },
+    {
+      "q": "How does payment work?",
+      "a": "The deposit and balance arrangement is agreed with you before work begins."
     }
   ]
 }

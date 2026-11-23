@@ -13,7 +13,7 @@
   const plus = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2v12M2 8h12"/></svg>';
 
   function pkgRow(p, i, cal) {
-    const label = p.billing === 'month' ? 'monthly' : p.from ? 'starting at' : 'one-time';
+    const label = p.label || (p.billing === 'month' ? 'monthly' : p.from ? 'starting at' : 'one-time');
     return `<div class="svc-pkg" data-svc-item>
       <button class="svc-head" type="button" aria-expanded="false" aria-controls="svc-${p.id}">
         <span class="svc-row">
@@ -59,6 +59,10 @@
         <div class="svc-label"><h3 id="svc-web">${esc(d.websites.title)}</h3><span class="mono">${esc(d.websites.note)}</span></div>
         ${d.websites.packages.map((p, i) => pkgRow(p, i, d.calendly)).join('')}
       </section>
+      ${d.webapps ? `<section class="svc-group" aria-labelledby="svc-apps">
+        <div class="svc-label"><h3 id="svc-apps">${esc(d.webapps.title)}</h3><span class="mono">${esc(d.webapps.note)}</span></div>
+        ${d.webapps.packages.map((p, i) => pkgRow(p, i, d.calendly)).join('')}
+      </section>` : ''}
       ${d.additional ? `<section class="svc-group" aria-labelledby="svc-extra">
         <div class="svc-label"><h3 id="svc-extra">${esc(d.additional.title)}</h3><span class="mono">${esc(d.additional.note)}</span></div>
         <p class="svc-note">${esc(d.additional.eligibility)}</p>

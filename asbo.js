@@ -1,5 +1,6 @@
 // Asbo: Olga's robot. Typed speech, cursor-following eyes, a scripted chat terminal and overlay panels.
-// Answers come only from the facts below (Olga's own notes); nothing is sent anywhere.
+// Scripted answers come from asbo-intents.js. When an AI endpoint is configured (meta "asbo-ai-endpoint"),
+// free-text questions go to the ASBO Worker instead, and the scripted answers become the fallback.
 
 const $ = (s, el = document) => el.querySelector(s);
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];
@@ -10,8 +11,8 @@ const robot = $('.robot');
 const lineEl = $('[data-line]');
 const idleLines = [
   "hi, i'm asbo, olga's ai. ask me anything about her work.",
-  'olga spent nine years breaking software on purpose. now she builds ai agents.',
-  'every assistant she builds gets a test report before launch.',
+  'olga has 5+ years of experience in qa automation, breaking software on purpose. now she builds ai agents.',
+  'every website olga builds is tested before launch, with a short report of what was checked.',
   'i speak english, russian and ukrainian. so do her assistants.',
 ];
 let typing = null;
@@ -186,8 +187,16 @@ function detectLang(text) {
 }
 
 const LABELS = { work: 'navigate_to_[work]', services: 'navigate_to_[services]', about: 'navigate_to_[about]' };
-function answer(q) {
-  const lang = detectLang(q);
+function resolve(intent, lang) {
+  const answers = (AI_URL && intent.answerAI) || intent.answer; // e.g. "self" says "olga's ai assistant" only with AI on
+  let a = answers[lang] || answers.en;
+  if (/\{\w+\}/.test(a)) a = PRICES ? a.replace(/\{(\w+)\}/g, (m, k) => PRICES[k] || m) : (intent.noData[lang] || intent.noData.en);
+  const res = { lang, a };
+  if (intent.go) res.go = [intent.go, LABELS[intent.go]];
+  if (intent.link) res.link = intent.link === 'calendly' ? [CAL, 'book_free_consultation ↗'] : [intent.link, intent.linkLabel || 'open ↗'];
+  return res;
+}
+function answer(q, lang = detectLang(q)) {
   const t = q.toLowerCase().replace(/[’ʼ`]/g, "'");
   let best = null, score = 0;
   for (const intent of KB.intents) {
@@ -197,12 +206,57 @@ function answer(q) {
     if (s > score) { score = s; best = intent; }
   }
   if (!best) return { lang, a: KB.fallback[lang] || KB.fallback.en, link: [CAL, 'ask_olga_directly ↗'] };
-  let a = best.answer[lang] || best.answer.en;
-  if (/\{\w+\}/.test(a)) a = PRICES ? a.replace(/\{(\w+)\}/g, (m, k) => PRICES[k] || m) : (best.noData[lang] || best.noData.en);
-  const res = { lang, a };
-  if (best.go) res.go = [best.go, LABELS[best.go]];
-  if (best.link) res.link = best.link === 'calendly' ? [CAL, 'book_free_consultation ↗'] : [best.link, best.linkLabel || 'open ↗'];
-  return res;
+  return resolve(best, lang);
+}
+const scripted = (id, lang) => resolve(KB.intents.find((i) => i.id === id), lang);
+
+// ---------- AI (optional) ----------
+// Free-text questions go to the ASBO Worker when an endpoint is configured; anything else (no endpoint, network
+// error, timeout, limit, a rejected reply) falls back to the approved scripted answers above.
+const AI_URL = (window.ASBO_AI_ENDPOINT ?? $('meta[name="asbo-ai-endpoint"]')?.content ?? '').trim();
+const AI_TIMEOUT_MS = 16000;
+const MAX_QUESTION = 500;
+const chatHistory = []; // text only, last 10 turns
+const NOTE = {
+  busy: {
+    en: "my ai brain is taking a short break, so here's the answer from olga's notes:",
+    ru: 'мой ии-мозг взял короткий перерыв, поэтому вот ответ из заметок ольги:',
+    uk: 'мій ші-мозок узяв коротку перерву, тож ось відповідь із нотаток ольги:',
+  },
+  limit: {
+    en: "i've used up my ai answers for now, so here's the answer from olga's notes:",
+    ru: 'мои ии-ответы пока закончились, поэтому вот ответ из заметок ольги:',
+    uk: 'мої ші-відповіді наразі закінчилися, тож ось відповідь із нотаток ольги:',
+  },
+  tooLong: {
+    en: "that's a long one! please keep questions under 500 characters.",
+    ru: 'длинновато! пожалуйста, уложитесь в 500 символов.',
+    uk: 'трохи задовго! будь ласка, вкладіться в 500 символів.',
+  },
+};
+const ACTION = {
+  work: { go: ['work', LABELS.work] }, services: { go: ['services', LABELS.services] }, about: { go: ['about', LABELS.about] },
+  book: { link: [CAL, 'book_free_consultation ↗'] },
+};
+async function askAI(q, lang) {
+  if (q.length > MAX_QUESTION) return { lang, a: NOTE.tooLong[lang] };
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), AI_TIMEOUT_MS);
+  let data = null;
+  try {
+    const r = await fetch(AI_URL, {
+      method: 'POST', headers: { 'content-type': 'application/json' }, signal: ctrl.signal,
+      body: JSON.stringify({ message: q, history: chatHistory.slice(-10) }),
+    });
+    data = await r.json();
+  } catch { data = null; } finally { clearTimeout(timer); }
+  if (data && data.ok && typeof data.reply === 'string') {
+    chatHistory.push({ role: 'user', text: q }, { role: 'assistant', text: data.reply });
+    return { lang: data.lang || lang, a: data.reply, source: 'ai', ...(ACTION[data.action] || {}) };
+  }
+  if (data && data.reason === 'too_long') return { lang, a: NOTE.tooLong[lang] };
+  const base = data && data.fallbackIntent ? scripted(data.fallbackIntent, lang) : answer(q, lang);
+  return { ...base, note: NOTE[data && data.reason === 'limit' ? 'limit' : 'busy'][lang] };
 }
 
 // ---------- Terminal ----------
@@ -227,12 +281,19 @@ function ask(q) {
   if (!q) return;
   addLine('q', q);
   const cmd = q.toLowerCase();
-  if (cmd === '/clear') { $$('.q, .a, .state, .go', log).forEach((n) => n.remove()); return; }
+  if (cmd === '/clear') { $$('.q, .a, .state, .go, .note', log).forEach((n) => n.remove()); return; }
   if (cmd === '/book') { addLine('a', 'opening calendly in a new tab.'); window.open(CAL, '_blank', 'noopener'); return; }
-  if (cmd === '/prices') return ask('how much does it cost');
+  if (cmd === '/prices') { addLine('state', '// asbo-state · thinking'); reply(scripted('prices', 'en')); return; }
   if (commands[cmd]) { addLine('a', `opening ${cmd.slice(1)}.`); setTimeout(() => open(commands[cmd]), 350); return; }
-  addLine('state', '// asbo-state · thinking');
-  const res = answer(q);
+  const state = addLine('state', '// asbo-state · thinking');
+  if (!AI_URL) { reply(answer(q)); return; }
+  let dots = 0;
+  const pulse = reduce ? null : setInterval(() => { state.textContent = '// asbo-state · thinking' + '.'.repeat(++dots % 4); }, 400);
+  askAI(q, detectLang(q)).then((res) => { clearInterval(pulse); state.textContent = '// asbo-state · thinking'; reply(res); });
+}
+// Types an answer into the terminal (same speed and buttons for scripted and AI answers).
+function reply(res) {
+  if (res.note) addLine('dim note', res.note);
   const a = addLine('a', '');
   let i = 0;
   const done = () => {
@@ -249,7 +310,8 @@ function ask(q) {
     }
     log.scrollTop = log.scrollHeight;
   };
-  say(res.a);
+  // The speech line next to the robot shows a short version of AI answers (first sentence).
+  say(res.source === 'ai' ? (res.a.match(/^.{1,160}?[.!?…](?=\s|$)/)?.[0] || res.a.slice(0, 160)) : res.a);
   if (reduce) { a.textContent = res.a; done(); return; }
   const t = setInterval(() => {
     a.textContent = res.a.slice(0, ++i);

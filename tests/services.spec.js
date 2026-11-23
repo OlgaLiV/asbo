@@ -2,7 +2,8 @@
 import { test, expect } from '@playwright/test';
 import { gotoReady, navClick, panel, services } from './helpers.js';
 
-const allPackages = [...services.websites.packages, ...(services.additional?.packages || []), ...services.care.packages];
+// Same order as the panel: Website Development, Custom Web Applications, Additional Development, Optional Care.
+const allPackages = [...services.websites.packages, ...(services.webapps?.packages || []), ...(services.additional?.packages || []), ...services.care.packages];
 
 async function openServices(page) {
   await navClick(page, 'services');
@@ -22,6 +23,18 @@ test('@smoke panel shows every package and price from services.json', async ({ p
     await expect(row.locator('.svc-price')).toContainText(price);
   }
   await expect(panel(page, 'services').locator('.svc-q')).toHaveCount(services.faq.length);
+});
+
+test('website prices are labelled as starting prices; web apps as agreed individually', async ({ page }) => {
+  await gotoReady(page);
+  await openServices(page);
+  const label = (id) => panel(page, 'services').locator(`#svc-${id}`).locator('xpath=..').locator('.svc-price .mono');
+  for (const id of ['starter', 'business', 'advanced']) await expect(label(id)).toHaveText('starting at');
+  await expect(label('web-apps')).toHaveText('agreed individually');
+  await expect(label('essential-care')).toHaveText('monthly');
+  const groups = await panel(page, 'services').locator('.svc-group h3').allTextContents();
+  expect(groups).toEqual([services.websites.title, services.webapps.title, services.additional.title, services.care.title]);
+  await expect(panel(page, 'services').locator('.sheet-lede')).toHaveText(services.intro);
 });
 
 test('only one package and one FAQ answer are open at a time', async ({ page }) => {

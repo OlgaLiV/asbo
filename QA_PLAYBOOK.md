@@ -38,6 +38,11 @@ Phone tests also resize to 320, 375, 390 and 430 px; the no-sideways-scroll swee
 | terminal | fits phone screens, long EN/RU/UK text wraps, input ≥ 16 px (no iOS zoom), conversation scroll doesn't move the page, commands, chips |
 | multilingual | services, prices, contact, projects and unknown questions in EN/RU/UK answered in the same language with the same facts |
 | accessibility | axe WCAG 2 A/AA on home, Services and terminal; accessible names; keyboard; 44 px touch targets |
+| ai-logic | ASBO reply checker (prices, wording, languages), price loading and fallback, what the model is told, scripted fallbacks pass the checker |
+| ai-worker | local Worker with the fake model: shared daily cap under concurrency, visitor limits, origins, sizes, rejected replies, timeouts, logs without visitor text |
+| ai-terminal | terminal with AI on (desktop + phones): EN/RU/UK answers, buttons, history, fallbacks, limits, commands stay local, AI off by default |
+
+AI tests never call a real model: Playwright starts two local Workers with `FAKE_MODEL=1` (see `worker/README.md`).
 
 Tests tagged `@smoke` also run against the deployed URL after every release.
 

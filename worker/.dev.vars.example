@@ -1,0 +1,4 @@
+# Copy to .dev.vars only if you ever test against the real API locally (it is git-ignored).
+# Never paste the key into chat, code, or commits.
+# ANTHROPIC_API_KEY=
+# VISITOR_SALT=any-long-random-string

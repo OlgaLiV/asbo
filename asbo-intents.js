@@ -2,21 +2,22 @@
 // To add or change an answer, edit it here; asbo.js picks the intent and the visitor's language.
 // keys: word stems matched anywhere in the question (any language). The longest matching stems win.
 // {starter} {business} {advanced} {essential} {care} are filled from services.json, so prices never drift.
-// go: opens a panel; link: 'calendly' or a URL. RU/UK wording: translated by Claude, pending Olga's review.
+// These answers are also ASBO's fallback when the AI is unavailable (wording record: asbo-previews/asbo-knowledge-DRAFT.md, B13).
+// go: opens a panel; link: 'calendly' or a URL. RU/UK wording: finalised 2026-11-23 to match the approved English.
 window.ASBO_INTENTS = {
   fallback: {
-    en: "i don't know that one yet. i only answer from olga's notes. try asking what she has built, how she tests, or what it costs.",
-    ru: 'этого я пока не знаю: я отвечаю только по заметкам ольги. спросите, что она сделала, как она тестирует или сколько это стоит.',
-    uk: 'цього я поки не знаю: я відповідаю лише за нотатками ольги. запитайте, що вона створила, як вона тестує або скільки це коштує.',
+    en: "hmm, that one isn't in olga's notes yet, and i'd rather not make things up. try asking what she has built, how she tests, or what it costs.",
+    ru: "хм, этого в заметках ольги пока нет, а выдумывать я не люблю. спросите, что она сделала, как она тестирует или сколько это стоит.",
+    uk: "хм, цього в нотатках ольги поки немає, а вигадувати я не люблю. запитайте, що вона створила, як вона тестує або скільки це коштує.",
   },
   intents: [
     {
       id: 'services',
       keys: { en: ['service', 'offer', 'provide', 'what do you do', 'what does she do'], ru: ['услуг', 'предлага', 'чем занима'], uk: ['послуг', 'пропону', 'чим займа'] },
       answer: {
-        en: 'olga builds websites for small businesses: a one-page starter, a business website of up to 5 pages, or an advanced custom website. optional monthly care keeps a site checked and updated, and sites she built can be extended later. ai assistants are a separate service.',
-        ru: 'ольга делает сайты для малого бизнеса: одностраничный starter, сайт business до 5 страниц или сложный сайт advanced. по желанию есть ежемесячное обслуживание, а сайты, которые она сделала, можно потом расширять. ии-ассистенты — отдельная услуга.',
-        uk: 'ольга створює сайти для малого бізнесу: односторінковий starter, сайт business до 5 сторінок або складний сайт advanced. за бажанням є щомісячне обслуговування, а сайти, які вона створила, можна згодом розширювати. ші-асистенти — окрема послуга.',
+        en: "olga builds websites for small businesses: a one-page website, a business website of up to five pages, or an advanced custom website. she also builds custom web apps, and you can discuss a mobile app project with her; for both, the scope and price are agreed individually. optional monthly care plans are available for websites she built, and those sites can be extended later. an ai assistant can be added as a separately quoted project.",
+        ru: "ольга делает сайты для малого бизнеса: одностраничный сайт, бизнес-сайт до пяти страниц или сложный индивидуальный сайт. ещё она создаёт веб-приложения на заказ, а проект мобильного приложения можно обсудить с ней — в обоих случаях объём работ и стоимость согласуются индивидуально. для сайтов, которые она сделала, есть ежемесячные планы обслуживания по желанию, и такие сайты можно потом расширять. ии-ассистента можно добавить как отдельный проект с отдельной оценкой.",
+        uk: "ольга створює сайти для малого бізнесу: односторінковий сайт, бізнес-сайт до п'яти сторінок або складний індивідуальний сайт. також вона створює вебзастосунки на замовлення, а проєкт мобільного застосунку можна обговорити з нею — в обох випадках обсяг робіт і вартість погоджуються індивідуально. для сайтів, які вона створила, є щомісячні плани обслуговування за бажанням, і такі сайти можна згодом розширювати. ші-асистента можна додати як окремий проєкт з окремою оцінкою.",
       },
       go: 'services',
     },
@@ -24,9 +25,9 @@ window.ASBO_INTENTS = {
       id: 'prices',
       keys: { en: ['price', 'cost', 'how much', 'pricing', 'package', 'budget', '$'], ru: ['цен', 'стоим', 'стоит', 'сколько', 'прайс', 'тариф', 'бюджет'], uk: ['цін', 'вартіст', 'кошту', 'скільки', 'прайс', 'тариф', 'бюджет'] },
       answer: {
-        en: 'website packages, one-time: starter {starter}, business {business} (the base for up to 5 pages; extra pages or features are quoted), advanced from {advanced}. optional care: {essential} or {care} a month. the final price and scope are agreed in writing before work starts.',
-        ru: 'сайты, разовая оплата: starter {starter}, business {business} (база до 5 страниц; дополнительные страницы и функции оцениваются отдельно), advanced от {advanced}. обслуживание по желанию: {essential} или {care} в месяц. итоговая цена и объём фиксируются письменно до начала работы.',
-        uk: 'сайти, разова оплата: starter {starter}, business {business} (база до 5 сторінок; додаткові сторінки й функції оцінюються окремо), advanced від {advanced}. обслуговування за бажанням: {essential} або {care} на місяць. остаточна ціна й обсяг фіксуються письмово до початку роботи.',
+        en: "websites start at {starter} for a one-page site, {business} for a business website of up to five pages, and {advanced} for an advanced custom website. these are one-time starting prices, and olga agrees the scope and final price with you before work begins. custom web apps are quoted individually. optional care plans are {essential} or {care} a month.",
+        ru: "сайты стоят от {starter} за одностраничный сайт, от {business} за бизнес-сайт до пяти страниц и от {advanced} за сложный индивидуальный сайт. это разовые стартовые цены, а объём работ и итоговую цену ольга согласует с вами до начала работы. веб-приложения на заказ оцениваются индивидуально. планы обслуживания по желанию — {essential} или {care} в месяц.",
+        uk: "сайти коштують від {starter} за односторінковий сайт, від {business} за бізнес-сайт до п'яти сторінок і від {advanced} за складний індивідуальний сайт. це разові стартові ціни, а обсяг робіт і остаточну ціну ольга погоджує з вами до початку роботи. вебзастосунки на замовлення оцінюються індивідуально. плани обслуговування за бажанням — {essential} або {care} на місяць.",
       },
       noData: {
         en: 'all prices are in the services panel.',
@@ -39,9 +40,9 @@ window.ASBO_INTENTS = {
       id: 'projects',
       keys: { en: ['built', 'build', 'project', 'portfolio', 'made', 'case'], ru: ['проект', 'сделал', 'портфолио', 'кейс'], uk: ['проєкт', 'проект', 'зробил', 'створил', 'портфоліо', 'кейс'] },
       answer: {
-        en: 'olga has built her own studio site and mobile app, enrolla (an admissions crm with a live demo), a website for tampa bay realtor nataliya fillers, and a real estate lead assistant prototype.',
-        ru: 'ольга сделала сайт и мобильное приложение своей студии, enrolla (crm для приёма студентов с живым демо), сайт для риелтора nataliya fillers из тампа-бэй и прототип ассистента для агентства недвижимости.',
-        uk: 'ольга створила сайт і мобільний застосунок своєї студії, enrolla (crm для вступної кампанії з живим демо), сайт для рієлторки nataliya fillers з тампа-бей і прототип асистента для агенції нерухомості.',
+        en: "olga has built her own studio site and mobile app, enrolla (an admissions crm with a live demo) and a real estate lead assistant prototype, and she's now building a website for tampa bay realtor nataliya fillers.",
+        ru: "ольга сделала сайт и мобильное приложение своей студии, enrolla (crm для приёма студентов с живым демо) и прототип ассистента для агентства недвижимости, а сейчас делает сайт для риелтора nataliya fillers из тампа-бэй.",
+        uk: "ольга створила сайт і мобільний застосунок своєї студії, enrolla (crm для вступної кампанії з живим демо) і прототип асистента для агенції нерухомості, а зараз створює сайт для рієлторки nataliya fillers з тампа-бей.",
       },
       go: 'work',
     },
@@ -79,9 +80,9 @@ window.ASBO_INTENTS = {
       id: 'testing',
       keys: { en: ['test', 'qa', 'quality', 'launch', 'break', 'bug'], ru: ['тест', 'качеств', 'баг', 'ошибк'], uk: ['тест', 'якіст', 'баг', 'помилк'] },
       answer: {
-        en: "nine years as a qa automation engineer taught olga that 'it works on my screen' isn't good enough. every project is checked against your requirements, your tools and odd questions before a single client sees it, and you get the test report.",
-        ru: 'девять лет в автоматизации тестирования научили ольгу, что «у меня работает» — это недостаточно. каждый проект проверяется по вашим требованиям, на ваших инструментах и необычных вопросах до того, как его увидит клиент, и вы получаете отчёт о тестировании.',
-        uk: "дев'ять років в автоматизації тестування навчили ольгу, що «у мене працює» — це замало. кожен проєкт перевіряється за вашими вимогами, на ваших інструментах і незвичних запитаннях, перш ніж його побачить клієнт, і ви отримуєте звіт про тестування.",
+        en: "5+ years in qa automation taught olga that ‘it works on my screen’ isn’t good enough. every website package is tested before launch, and you get a short report of what was checked. for web apps and other projects, testing and reporting are agreed as part of the project.",
+        ru: "за 5+ лет в автоматизации тестирования ольга поняла, что «у меня работает» — это недостаточно. каждый сайт из её пакетов тестируется перед запуском, и вы получаете короткий отчёт о том, что было проверено. для веб-приложений и других проектов тестирование и отчётность согласуются в рамках проекта.",
+        uk: "за понад 5 років в автоматизації тестування ольга зрозуміла, що «у мене працює» — це замало. кожен сайт із її пакетів тестується перед запуском, і ви отримуєте короткий звіт про те, що було перевірено. для вебзастосунків та інших проєктів тестування й звітність погоджуються в межах проєкту.",
       },
     },
     {
@@ -117,9 +118,9 @@ window.ASBO_INTENTS = {
       id: 'about',
       keys: { en: ['who', 'olga', 'about', 'background', 'experience', 'founder'], ru: ['кто', 'ольг', 'опыт', 'основател'], uk: ['хто', 'ольг', 'досвід', 'засновни'] },
       answer: {
-        en: 'olga is the founder of asbo, ai studio by olga. nine years of qa automation, now building websites and practical ai tools for small businesses. you talk to her from the first conversation to launch.',
-        ru: 'ольга — основательница asbo, ai studio by olga. девять лет в автоматизации тестирования, теперь она создаёт сайты и практичные ии-инструменты для малого бизнеса. от первого разговора до запуска вы общаетесь напрямую с ней.',
-        uk: "ольга — засновниця asbo, ai studio by olga. дев'ять років в автоматизації тестування, тепер вона створює сайти й практичні ші-інструменти для малого бізнесу. від першої розмови до запуску ви спілкуєтеся безпосередньо з нею.",
+        en: "olga is the founder of asbo, ai studio by olga. 5+ years of experience in qa automation, now building websites and practical ai tools for small businesses. you talk to her from the first conversation to launch.",
+        ru: "ольга — основательница asbo, ai studio by olga. у неё более 5 лет опыта в автоматизации тестирования, а теперь она создаёт сайты и практичные ии-инструменты для малого бизнеса. от первого разговора до запуска вы общаетесь напрямую с ней.",
+        uk: "ольга — засновниця asbo, ai studio by olga. вона має понад 5 років досвіду в автоматизації тестування, а тепер створює сайти й практичні ші-інструменти для малого бізнесу. від першої розмови до запуску ви спілкуєтеся безпосередньо з нею.",
       },
       go: 'about',
     },
@@ -136,10 +137,16 @@ window.ASBO_INTENTS = {
     {
       id: 'self',
       keys: { en: ['robot', 'who are you', 'your name', 'are you'], ru: ['робот', 'ты кто', 'кто ты', 'тебя зовут'], uk: ['робот', 'хто ти', 'ти хто', 'тебе звати'] },
+      // Used instead of answer when the AI is switched on.
+      answerAI: {
+        en: "i’m asbo, olga’s ai assistant. ask me about her work, services and prices.",
+        ru: "я asbo, ии-помощница ольги. спрашивайте меня о её работе, услугах и ценах.",
+        uk: "я asbo, ші-помічниця ольги. питайте мене про її роботу, послуги й ціни.",
+      },
       answer: {
-        en: "i'm asbo, short for ai studio by olga. i'm a simple scripted assistant: i only answer from olga's notes, and i don't send anything anywhere.",
-        ru: 'я asbo — сокращение от ai studio by olga. я простой ассистент со сценариями: отвечаю только по заметкам ольги и никуда ничего не отправляю.',
-        uk: 'я asbo — скорочення від ai studio by olga. я простий асистент зі сценаріями: відповідаю лише за нотатками ольги й нікуди нічого не надсилаю.',
+        en: "i'm asbo, olga's robot helper. i answer from her prepared notes, so ask me about her work, services and prices.",
+        ru: "я asbo, робот-помощница ольги. я отвечаю по её подготовленным заметкам: спрашивайте о её работе, услугах и ценах.",
+        uk: "я asbo, робот-помічниця ольги. я відповідаю за її підготовленими нотатками: питайте про її роботу, послуги й ціни.",
       },
     },
   ],

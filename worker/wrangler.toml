@@ -1,0 +1,29 @@
+# ASBO chat Worker. Production values below; local runs override them with --var (see package.json scripts).
+# Secrets (set by Olga in her own terminal, never in this file):
+#   npx wrangler secret put ANTHROPIC_API_KEY
+#   npx wrangler secret put VISITOR_SALT
+name = "asbo-chat"
+main = "src/index.js"
+compatibility_date = "2026-11-01"
+compatibility_flags = ["nodejs_compat"]
+
+[vars]
+ALLOWED_ORIGINS = "https://asboagent.com"
+PRICES_URL = "https://asboagent.com/services.json"
+MODEL = "claude-haiku-5-5"
+SITE_DAILY = "100"
+VISITOR_DAILY = "30"
+VISITOR_PER_MINUTE = "10"
+
+[[durable_objects.bindings]]
+name = "LIMITER"
+class_name = "Limiter"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["Limiter"]
+
+[[rules]]
+type = "Text"
+globs = ["**/*.md"]
+fallthrough = true

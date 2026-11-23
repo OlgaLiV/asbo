@@ -5,3 +5,7 @@ node_modules/
 playwright-report/
 test-results/
 Universal_AI_Project_Playbook.md
+worker/.dev.vars
+.wrangler/
+worker/.wrangler/
+.wrangler-test/
