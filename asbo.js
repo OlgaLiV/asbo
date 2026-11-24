@@ -10,10 +10,10 @@ const robot = $('.robot');
 // ---------- Speech line ----------
 const lineEl = $('[data-line]');
 const idleLines = [
-  "hi, i'm asbo, olga's ai. ask me anything about her work.",
-  'olga has 5+ years of experience in qa automation, breaking software on purpose. now she builds ai agents.',
-  'every website olga builds is tested before launch, with a short report of what was checked.',
-  'i speak english, russian and ukrainian. so do her assistants.',
+  "Hi, I'm ASBO, Olga's AI. Ask me anything about her work.",
+  'Olga has 5+ years of experience in QA automation, breaking software on purpose. Now she builds AI agents.',
+  'Every website Olga builds is tested before launch, with a short report of what was checked.',
+  'I speak English, Russian and Ukrainian. So do her assistants.',
 ];
 let typing = null;
 function say(text) {
@@ -45,7 +45,7 @@ let tracking = true, paused = false, near = false, nearLineAt = 0, happyUntil = 
 let lastMove = -1e9, prevX = 0, tailAngle = 0, tailVel = 0;
 let blinkAt = performance.now() + 2200, blinkStart = -1, jumpStart = -1, waveStart = -1;
 let revealAt = -1; // she holds the resting pose the pixels formed, then eases into motion
-const nearLines = ['oh, hello there.', 'you found me. ask me something.', "careful, i'm ticklish."];
+const nearLines = ['Oh, hello there!', 'You found me! Ask me something.', "Careful, I'm ticklish."];
 
 function setNear(v) {
   if (v === near) return;
@@ -71,7 +71,7 @@ document.documentElement.addEventListener('pointerleave', () => { target.x = tar
 robot.addEventListener('click', () => {
   jumpStart = performance.now();
   happyUntil = jumpStart + 1400;
-  say(['boop! ask me something.', 'hehe. that tickles.', 'hi! i do a little hop when i’m happy.'][Math.floor(Math.random() * 3)]);
+  say(['Boop! Ask me something.', 'Hehe, that tickles.', 'Hi! I do a little hop when I’m happy.'][Math.floor(Math.random() * 3)]);
 });
 
 function pose(el, t) { el.setAttribute('transform', t); }
@@ -196,8 +196,8 @@ function resolve(intent, lang) {
   if (intent.link) res.link = intent.link === 'calendly' ? [CAL, 'book_free_consultation ↗'] : [intent.link, intent.linkLabel || 'open ↗'];
   return res;
 }
-function answer(q, lang = detectLang(q)) {
-  const t = q.toLowerCase().replace(/[’ʼ`]/g, "'");
+// Best topic for one piece of a message (longest matching stems win), or null.
+function bestIntent(t) {
   let best = null, score = 0;
   for (const intent of KB.intents) {
     const keys = new Set([...(intent.keys.en || []), ...(intent.keys.ru || []), ...(intent.keys.uk || [])]);
@@ -205,8 +205,103 @@ function answer(q, lang = detectLang(q)) {
     for (const k of keys) if (t.includes(k)) s += k.length;
     if (s > score) { score = s; best = intent; }
   }
-  if (!best) return { lang, a: KB.fallback[lang] || KB.fallback.en, link: [CAL, 'ask_olga_directly ↗'] };
-  return resolve(best, lang);
+  return best;
+}
+
+// Small talk and things ASBO can't know. Each pattern is removed from the message before topics are matched, so
+// "how are you" doesn't get mistaken for a question about Olga.
+const B = '(?<![\\p{L}\\p{N}])', E = '(?![\\p{L}\\p{N}])';
+const rx = (s) => new RegExp(s.replace(/\\b</g, B).replace(/\\b>/g, E), 'giu');
+const TALK_PATTERNS = {
+  how: rx("\\b<(how are (you|u)|how're you|how('?s| is) it going|how do you do|how have you been|how('?s| is) your day|как (дела|поживаете|поживаешь|у (вас|тебя) дела|ты(?=\\s*[?!.,]|\\s*$))|як (справи|поживаєте|поживаєш|у (вас|тебе) справи|ти(?=\\s*[?!.,]|\\s*$)))\\b>"),
+  self: rx("\\b<(who are (you|u)|what are you|what'?s your name|your name|are you (a |an )?(robot|bot|ai|human|real)|кто ты|ты кто|кто вы такая|как тебя зовут|как вас зовут|ты робот|хто ти|ти хто|хто ви така|як тебе звати|як вас звати|ти робот)\\b>"),
+  greet: rx('\\b<(hi|hello|hey|hiya|howdy|good (morning|afternoon|evening)|(nice|pleased|glad) to meet you|приятно познакомиться|приємно познайомитися|привет|здравствуй(те)?|добрый (день|вечер)|доброе утро|привіт|вітаю|добрий (день|вечір)|доброго (дня|ранку|вечора))\\b>'),
+  ack: rx('^\\s*(ok|okay|cool|great|got it|nice|i see|понятно|хорошо|ясно|ок|зрозуміло|добре|ясно)[\\s!.]*$'),
+  thanks: rx('\\b<(thanks|thank you|thx|ty|спасибо|благодарю|дякую|спасибі)\\b>'),
+  bye: rx('\\b<(bye|goodbye|see you|see ya|до свидания|до встречи|бувай(те)?|до побачення|до зустрічі)\\b>|^\\s*пока[\\s!.]*$'),
+  weather: rx('\\b<(weather|forecast|temperature|погод\\p{L}*|прогноз\\p{L}*|температур\\p{L}*)\\b>'),
+  live: rx("\\b<(what time is it|what'?s the time|today'?s date|what day is it|the news|latest news|который час|какое сегодня число|котра година|яке сьогодні число|новост\\p{L}*|новин\\p{L}*)\\b>"),
+};
+
+// What this chat has already covered, so a repeated question gets a light, varied acknowledgement instead of the
+// exact same reply. Cleared by /clear and by reloading the page.
+const covered = new Map();
+const once = (key) => { const n = covered.get(key) || 0; covered.set(key, n + 1); return n; };
+const pick = (list, n) => (Array.isArray(list) ? list[n % list.length] : list);
+
+// Words that carry no question on their own ("hi there", "hello again", "hey ASBO").
+const FILLER = new Set(['there', 'again', 'asbo', 'асбо', 'you', 'u', 'too', 'so', 'well', 'ok', 'okay', 'oh', 'and', 'friend', 'everyone', 'all', 'и', 'і', 'та', 'а', 'ну', 'тебе', 'вам', 'тобі']);
+const words = (s) => (s.match(/[\p{L}\p{N}$]+/gu) || []).filter((w) => !FILLER.has(w));
+
+// Answers every part of a message: small talk, things ASBO can't know, and each topic asked about.
+function answer(q, lang = detectLang(q)) {
+  const T = KB.talk || {};
+  const line = (k, n = 0) => { const v = T[k] || {}; return pick(v[lang] || v.en, n); };
+  let t = q.toLowerCase().replace(/[’ʼ`]/g, "'");
+  const asked = {};
+  for (const [k, re] of Object.entries(TALK_PATTERNS)) {
+    re.lastIndex = 0;
+    asked[k] = re.test(t);
+    t = t.replace(re, ' ');
+  }
+  const outOfScope = asked.weather || asked.live;
+  // the topics asked about, piece by piece, in order and without repeats; a piece of three or more words that
+  // matches no topic is a question ASBO can't answer, and gets the honest "I don't know" instead of being ignored
+  const topics = [];
+  let unknown = false;
+  for (const piece of t.split(/[.?!;\n]+|,\s*(?:and|и|і|та)\s+|\s+(?:and also|а также|а ще)\s+/)) {
+    const w = words(piece);
+    if (!w.length) continue;
+    const intent = bestIntent(piece);
+    if (intent && intent.id !== 'self') { if (!topics.includes(intent)) topics.push(intent); }
+    else if (w.length >= 3) unknown = true;
+  }
+
+  const parts = [], res = { lang };
+  if (asked.greet) parts.push(line(once('greet') ? 'greetAgain' : 'greet'));
+  if (asked.how) { const n = once('how'); parts.push(n ? line('howAgain', n - 1) : line('how')); }
+  if (asked.self) { const n = once('self'); parts.push(n ? line('selfAgain', n - 1) : line(AI_URL ? 'selfAI' : 'self')); }
+  if (asked.thanks) parts.push(line('thanks', once('thanks')));
+  let outFirst = false;
+  for (const k of ['weather', 'live']) {
+    if (!asked[k]) continue;
+    const n = once(k);
+    if (!n) outFirst = true;
+    parts.push(n ? line(k + 'Again', n - 1) : line(k));
+  }
+  for (const intent of topics) {
+    const n = once('topic:' + intent.id);
+    if (n) parts.push(line('again', n - 1));
+    const r = resolve(intent, lang);
+    parts.push(r.a);
+    if (r.go && !res.go) res.go = r.go;
+    if (r.link && !res.link) res.link = r.link;
+  }
+  if (unknown && !outOfScope) {
+    const n = once('fallback');
+    parts.push(n ? line('fallbackAgain', n - 1) : (KB.fallback[lang] || KB.fallback.en));
+    if (!res.link) res.link = [CAL, 'ask_olga_directly ↗'];
+  }
+
+  if (!topics.length && (!unknown || outOfScope)) {
+    if (outOfScope) {
+      if (outFirst) parts.push(line('offerOut'));
+      res.link = [CAL, 'ask_olga_directly ↗'];
+    } else if (asked.greet || asked.how || asked.self) {
+      // first time: introduce ASBO and say what it can help with; later: just ask how to help
+      if (once('intro') === 0) { if (!asked.self) parts.push(line(AI_URL ? 'selfAI' : 'self')); parts.push(line('offer')); }
+      else if (!asked.bye) parts.push(line('ask'));
+    } else if ((asked.thanks || asked.ack) && !asked.bye) {
+      parts.push(line('anythingElse'));
+    } else if (!asked.bye) {
+      parts.push(KB.fallback[lang] || KB.fallback.en);
+      res.link = [CAL, 'ask_olga_directly ↗'];
+    }
+  }
+  if (asked.bye) parts.push(line('bye'));
+
+  res.a = parts.join(' ');
+  return res;
 }
 const scripted = (id, lang) => resolve(KB.intents.find((i) => i.id === id), lang);
 
@@ -219,19 +314,19 @@ const MAX_QUESTION = 500;
 const chatHistory = []; // text only, last 10 turns
 const NOTE = {
   busy: {
-    en: "my ai brain is taking a short break, so here's the answer from olga's notes:",
-    ru: 'мой ии-мозг взял короткий перерыв, поэтому вот ответ из заметок ольги:',
-    uk: 'мій ші-мозок узяв коротку перерву, тож ось відповідь із нотаток ольги:',
+    en: "My AI brain is taking a short break, so here's my standard answer:",
+    ru: 'Мой ИИ-мозг взял короткий перерыв, поэтому вот мой стандартный ответ:',
+    uk: 'Мій ШІ-мозок узяв коротку перерву, тож ось моя стандартна відповідь:',
   },
   limit: {
-    en: "i've used up my ai answers for now, so here's the answer from olga's notes:",
-    ru: 'мои ии-ответы пока закончились, поэтому вот ответ из заметок ольги:',
-    uk: 'мої ші-відповіді наразі закінчилися, тож ось відповідь із нотаток ольги:',
+    en: "I've used up my AI answers for now, so here's my standard answer:",
+    ru: 'Мои ИИ-ответы пока закончились, поэтому вот мой стандартный ответ:',
+    uk: 'Мої ШІ-відповіді наразі закінчилися, тож ось моя стандартна відповідь:',
   },
   tooLong: {
-    en: "that's a long one! please keep questions under 500 characters.",
-    ru: 'длинновато! пожалуйста, уложитесь в 500 символов.',
-    uk: 'трохи задовго! будь ласка, вкладіться в 500 символів.',
+    en: "That's a long one! Please keep questions under 500 characters.",
+    ru: 'Длинновато! Пожалуйста, уложитесь в 500 символов.',
+    uk: 'Трохи задовго! Будь ласка, вкладіться в 500 символів.',
   },
 };
 const ACTION = {
@@ -266,20 +361,23 @@ const input = $('#q');
 // viewport, and iPhone Safari pans the page to reveal the input. So the terminal's overlay is pinned to the visible
 // viewport (its height and its offset), which keeps the header, close button, conversation and input on screen.
 // Keep the latest message and its button in view when the chat area changes size (keyboard opening, rotation),
-// unless the visitor has scrolled up to read earlier messages. Scroll events caused by the resize itself are
-// ignored for a moment, so they aren't mistaken for the visitor scrolling up.
-let logAtEnd = true, layoutShiftUntil = 0;
+// unless the visitor has scrolled up to read earlier messages. A scroll that comes with a change in the chat area's
+// size (keyboard, rotation, new text) is the browser re-laying it out, not the visitor, so it doesn't count.
+let logAtEnd = true, logBox = '';
+const box = () => `${log.clientWidth}x${log.clientHeight}x${log.scrollHeight}`;
+const keepLogAtEnd = () => { if (logAtEnd) log.scrollTop = log.scrollHeight; logBox = box(); };
+// The site scrolling the chat to its newest line (new message, typing): remember the size it scrolled at, so the
+// resulting scroll event is not taken for a layout change, and a visitor scrolling up at that moment still counts.
+const logToEnd = () => { log.scrollTop = log.scrollHeight; logAtEnd = true; logBox = box(); };
 log.addEventListener('scroll', () => {
-  if (performance.now() < layoutShiftUntil) return;
+  if (box() !== logBox) { keepLogAtEnd(); return; }
   logAtEnd = log.scrollHeight - log.scrollTop - log.clientHeight < 24;
 }, { passive: true });
-const keepLogAtEnd = () => { if (logAtEnd) log.scrollTop = log.scrollHeight; };
 if (window.ResizeObserver) new ResizeObserver(keepLogAtEnd).observe(log);
 if (window.visualViewport) {
   const vv = window.visualViewport;
   const setVv = () => {
     const html = document.documentElement;
-    layoutShiftUntil = performance.now() + 400;
     html.style.setProperty('--vvh', `${Math.round(vv.height)}px`);
     html.style.setProperty('--vvtop', `${Math.round(vv.offsetTop)}px`);
     html.classList.toggle('kb-open', window.innerHeight - vv.height > 150);
@@ -294,7 +392,7 @@ function addLine(cls, text) {
   p.className = cls;
   p.textContent = text;
   log.appendChild(p);
-  log.scrollTop = log.scrollHeight;
+  logToEnd();
   return p;
 }
 function ask(q) {
@@ -302,10 +400,10 @@ function ask(q) {
   if (!q) return;
   addLine('q', q);
   const cmd = q.toLowerCase();
-  if (cmd === '/clear') { $$('.q, .a, .state, .go, .note', log).forEach((n) => n.remove()); return; }
-  if (cmd === '/book') { addLine('a', 'opening calendly in a new tab.'); window.open(CAL, '_blank', 'noopener'); return; }
+  if (cmd === '/clear') { $$('.q, .a, .state, .go, .note', log).forEach((n) => n.remove()); covered.clear(); chatHistory.length = 0; return; }
+  if (cmd === '/book') { addLine('a', 'Opening Calendly in a new tab.'); window.open(CAL, '_blank', 'noopener'); return; }
   if (cmd === '/prices') { addLine('state', '// asbo-state · thinking'); reply(scripted('prices', 'en')); return; }
-  if (commands[cmd]) { addLine('a', `opening ${cmd.slice(1)}.`); setTimeout(() => open(commands[cmd]), 350); return; }
+  if (commands[cmd]) { addLine('a', `Opening ${cmd.slice(1)}.`); setTimeout(() => open(commands[cmd]), 350); return; }
   const state = addLine('state', '// asbo-state · thinking');
   if (!AI_URL) { reply(answer(q)); return; }
   let dots = 0;
@@ -329,14 +427,14 @@ function reply(res) {
       l.className = 'go'; l.href = res.link[0]; l.target = '_blank'; l.rel = 'noopener'; l.textContent = res.link[1];
       log.appendChild(l);
     }
-    log.scrollTop = log.scrollHeight;
+    logToEnd();
   };
   // The speech line next to the robot shows a short version of AI answers (first sentence).
   say(res.source === 'ai' ? (res.a.match(/^.{1,160}?[.!?…](?=\s|$)/)?.[0] || res.a.slice(0, 160)) : res.a);
   if (reduce) { a.textContent = res.a; done(); return; }
   const t = setInterval(() => {
     a.textContent = res.a.slice(0, ++i);
-    log.scrollTop = log.scrollHeight;
+    logToEnd();
     if (i >= res.a.length) { clearInterval(t); done(); }
   }, 14);
 }

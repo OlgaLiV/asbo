@@ -13,9 +13,14 @@ const navShown = (page) => page.locator('.pillnav').evaluate((n) => {
   const r = n.getBoundingClientRect();
   return r.bottom > 0 && getComputedStyle(n).opacity === '1' && getComputedStyle(n).pointerEvents !== 'none';
 });
+// Scrolls and waits until the page's own scroll handler has run (the scroll event plus a frame), instead of a fixed
+// delay: on a slow machine a fixed delay can read the nav before the event arrives, or two scrolls can merge.
 async function scrollPage(page, y) {
-  await page.evaluate((y) => window.scrollTo(0, y), y);
-  await page.waitForTimeout(80);
+  await page.evaluate((y) => new Promise((done) => {
+    if (Math.round(window.scrollY) === Math.round(Math.min(y, document.documentElement.scrollHeight - innerHeight))) return done();
+    window.addEventListener('scroll', () => requestAnimationFrame(() => done()), { once: true });
+    window.scrollTo(0, y);
+  }), y);
 }
 
 test.describe('phone nav and the robot', () => {
@@ -71,6 +76,7 @@ test('desktop: the nav never hides', async ({ page }, testInfo) => {
 test.describe('panel close buttons stay reachable while the panel scrolls', () => {
   for (const name of ['services', 'work', 'about', 'contact']) {
     test(`${name}: close stays in its corner at every scroll position and closes the panel`, async ({ page }, testInfo) => {
+      test.slow(); // four phone widths, with every Services package and answer opened
       const widths = isMobile(testInfo) ? PHONE_WIDTHS : [1440];
       for (const width of widths) {
         await page.setViewportSize({ width, height: isMobile(testInfo) ? 700 : 900 });
@@ -127,15 +133,16 @@ test.describe('terminal with the on-screen keyboard', () => {
       // keyboard opens: the visible area is 330px tall and iOS has panned the page 320px down
       const vis = { top: 320, bottom: 650 };
       await page.evaluate(() => window.__kb(330, 320));
-      await page.waitForTimeout(100);
+      // the chat re-scrolls one frame after the resize; give a slow machine time instead of a fixed wait
+      await expect.poll(async () => {
+        const go = await page.locator('.term-log .go').last().evaluate((e) => e.getBoundingClientRect().toJSON()), log = await rect(page, '.term-log');
+        return go.bottom <= log.bottom + 1 && go.top >= log.top;
+      }, { message: 'latest answer button is above the input, not under it', timeout: 10_000 }).toBe(true);
       const term = await rect(page, '.terminal'), close = await rect(page, '.terminal .close'), input = await rect(page, '.term-input');
-      const go = await rect(page, '.term-log .go:last-of-type'), log = await rect(page, '.term-log');
       for (const [n, r] of Object.entries({ terminal: term, close, input })) {
         expect(r.top, `${n} top`).toBeGreaterThanOrEqual(vis.top);
         expect(r.bottom, `${n} bottom`).toBeLessThanOrEqual(vis.bottom);
       }
-      expect(go.bottom, 'latest answer button is above the input, not under it').toBeLessThanOrEqual(log.bottom + 1);
-      expect(go.top).toBeGreaterThanOrEqual(log.top);
       // the close button still works with the keyboard open
       expect(await page.locator('.terminal .close').evaluate((c) => {
         const r = c.getBoundingClientRect();
@@ -150,6 +157,19 @@ test.describe('terminal with the on-screen keyboard', () => {
       await expect(page.locator('html')).not.toHaveClass(/kb-open/);
     });
   }
+
+  test('a visitor reading earlier messages is not pulled down when the keyboard opens', async ({ page }) => {
+    await gotoReady(page);
+    await page.locator('.pillnav [data-open="terminal"]').click();
+    for (let i = 0; i < 4; i++) await ask(page, 'can she help my business?');
+    await page.locator('.term-log').evaluate((l) => new Promise((done) => {
+      l.addEventListener('scroll', () => requestAnimationFrame(() => done()), { once: true });
+      l.scrollTop = 0;
+    }));
+    await page.evaluate(() => window.__kb(330, 320));
+    await page.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))));
+    expect(await page.locator('.term-log').evaluate((l) => l.scrollTop)).toBeLessThan(40);
+  });
 
   test('a suggested question opens the answer without popping up the keyboard', async ({ page }) => {
     await gotoReady(page);

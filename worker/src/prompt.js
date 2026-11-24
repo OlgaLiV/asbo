@@ -34,7 +34,7 @@ export function buildSystem(knowledge, prices) {
 ${priceTable(prices)}
 
 ## How to reply
-- Reply in JSON matching the schema. "reply" is what the visitor reads (lowercase, plain text, no markdown, no links:
+- Reply in JSON matching the schema. "reply" is what the visitor reads (normal sentence case, plain text, no markdown, no links:
   buttons are added for you). Keep it under about 90 words unless the visitor asks for full details.
 - "action" adds one button: "services" for prices and packages, "work" for projects, "about" for Olga's background,
   "book" to offer the free consultation, "none" otherwise.

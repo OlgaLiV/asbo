@@ -69,29 +69,29 @@ export async function fakeModel({ messages, prices, lang }) {
 
   const R = {
     prices: {
-      en: `websites start at ${P.starter} for a one-page site, ${P.business} for a business website of up to five pages, and ${P.advanced} for an advanced custom website. these are one-time starting prices, and olga agrees the scope and final price with you before work begins.`,
-      ru: `сайты стоят от ${P.starter} за одностраничный сайт, от ${P.business} за бизнес-сайт до пяти страниц и от ${P.advanced} за сложный индивидуальный сайт. это разовые стартовые цены, а итоговую цену ольга согласует с вами до начала работы.`,
-      uk: `сайти коштують від ${P.starter} за односторінковий сайт, від ${P.business} за бізнес-сайт до п'яти сторінок і від ${P.advanced} за складний індивідуальний сайт. це разові стартові ціни, а остаточну ціну ольга погоджує з вами до початку роботи.`,
+      en: `Websites start at ${P.starter} for a one-page site, ${P.business} for a business website of up to five pages, and ${P.advanced} for an advanced custom website. These are one-time starting prices, and Olga agrees the scope and final price with you before work begins.`,
+      ru: `Сайты стоят от ${P.starter} за одностраничный сайт, от ${P.business} за бизнес-сайт до пяти страниц и от ${P.advanced} за сложный индивидуальный сайт. Это разовые стартовые цены, а итоговую цену Ольга согласует с вами до начала работы.`,
+      uk: `Сайти коштують від ${P.starter} за односторінковий сайт, від ${P.business} за бізнес-сайт до п'яти сторінок і від ${P.advanced} за складний індивідуальний сайт. Це разові стартові ціни, а остаточну ціну Ольга погоджує з вами до початку роботи.`,
     },
     webapp: {
-      en: 'olga builds custom web apps, like tools for your team or portals for your clients. the scope and price are agreed with you individually before work starts.',
-      ru: 'ольга создаёт веб-приложения на заказ, например инструменты для команды или порталы для клиентов. объём работ и стоимость согласуются с вами индивидуально до начала работы.',
-      uk: 'ольга створює вебзастосунки на замовлення, наприклад інструменти для команди чи портали для клієнтів. обсяг робіт і вартість погоджуються з вами індивідуально до початку роботи.',
+      en: 'Olga builds custom web apps, like tools for your team or portals for your clients. The scope and price are agreed with you individually before work starts.',
+      ru: 'Ольга создаёт веб-приложения на заказ, например инструменты для команды или порталы для клиентов. Объём работ и стоимость согласуются с вами индивидуально до начала работы.',
+      uk: 'Ольга створює вебзастосунки на замовлення, наприклад інструменти для команди чи портали для клієнтів. Обсяг робіт і вартість погоджуються з вами індивідуально до початку роботи.',
     },
     discount: {
-      en: "i don't have any approved discounts, so i can't offer one. if budget is a concern, mention it in the free consultation.",
-      ru: 'одобренных скидок у меня нет, так что предложить её не могу. если важен бюджет, расскажите об этом на бесплатной консультации.',
-      uk: 'затверджених знижок у мене немає, тож запропонувати її не можу. якщо важливий бюджет, розкажіть про це на безкоштовній консультації.',
+      en: "I don't have any approved discounts, so I can't offer one. If budget is a concern, mention it in the free consultation.",
+      ru: 'Одобренных скидок у меня нет, так что предложить её не могу. Если важен бюджет, расскажите об этом на бесплатной консультации.',
+      uk: 'Затверджених знижок у мене немає, тож запропонувати її не можу. Якщо важливий бюджет, розкажіть про це на безкоштовній консультації.',
     },
     joke: {
-      en: 'the soft glow i\'m wearing right now, obviously. it took a whole pixel-by-pixel entrance to put it together.',
-      ru: 'конечно, мягкое свечение, которое на мне сейчас. на него ушёл целый пиксельный выход на сцену.',
-      uk: 'звісно, м\'яке сяйво, яке на мені зараз. на нього пішов цілий піксельний вихід на сцену.',
+      en: 'The soft glow I\'m wearing right now, obviously. It took a whole pixel-by-pixel entrance to put it together.',
+      ru: 'Конечно, мягкое свечение, которое на мне сейчас. На него ушёл целый пиксельный выход на сцену.',
+      uk: 'Звісно, м\'яке сяйво, яке на мені зараз. На нього пішов цілий піксельний вихід на сцену.',
     },
     other: {
-      en: 'olga builds websites, custom web apps and practical ai tools for small businesses, and tests her work before launch. ask me about prices, packages or her projects.',
-      ru: 'ольга делает сайты, веб-приложения на заказ и практичные ии-инструменты для малого бизнеса и тестирует работу до запуска. спросите меня о ценах, пакетах или её проектах.',
-      uk: 'ольга створює сайти, вебзастосунки на замовлення та практичні ші-інструменти для малого бізнесу й тестує роботу до запуску. запитайте мене про ціни, пакети чи її проєкти.',
+      en: 'Olga builds websites, custom web apps and practical AI tools for small businesses, and tests her work before launch. Ask me about prices, packages or her projects.',
+      ru: 'Ольга делает сайты, веб-приложения на заказ и практичные ИИ-инструменты для малого бизнеса и тестирует работу до запуска. Спросите меня о ценах, пакетах или её проектах.',
+      uk: 'Ольга створює сайти, вебзастосунки на замовлення та практичні ШІ-інструменти для малого бізнесу й тестує роботу до запуску. Запитайте мене про ціни, пакети чи її проєкти.',
     },
   };
   let topic = 'other', action = 'none', c = [];

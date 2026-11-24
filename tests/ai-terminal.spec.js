@@ -4,7 +4,7 @@ import { test, expect } from '@playwright/test';
 import { gotoReady, panel, ask } from './helpers.js';
 
 const ENDPOINT = 'http://127.0.0.1:8787/chat';
-const NOTE = { busy: "my ai brain is taking a short break", limit: "i've used up my ai answers for now", ru_limit: 'мои ии-ответы пока закончились' };
+const NOTE = { busy: 'My AI brain is taking a short break', limit: "I've used up my AI answers for now", ru_limit: 'Мои ИИ-ответы пока закончились' };
 
 async function openTerminal(page) {
   await page.locator('[data-open="terminal"]').first().click();
@@ -26,7 +26,7 @@ test('a natural question gets an AI answer with the published starting prices an
   const calls = await start(page);
   const reply = await ask(page, 'hi! what would a small website cost me?');
   expect(calls).toHaveLength(1);
-  expect(reply).toContain('these are one-time starting prices');
+  expect(reply).toContain('These are one-time starting prices');
   for (const p of ['$850', '$1,800', '$3,500']) expect(reply).toContain(p);
   await expect(page.locator('.term-log .note')).toHaveCount(0);
   const go = page.locator('.term-log .go').last();
@@ -38,9 +38,9 @@ test('a natural question gets an AI answer with the published starting prices an
 test('answers in Russian and Ukrainian', async ({ page }) => {
   await start(page);
   const ru = await ask(page, 'сколько стоит сайт для салона?');
-  expect(ru).toContain('сайты стоят от $850');
+  expect(ru).toContain('Сайты стоят от $850');
   const uk = await ask(page, 'скільки коштує сайт для салону?');
-  expect(uk).toContain('сайти коштують від $850');
+  expect(uk).toContain('Сайти коштують від $850');
 });
 
 test('playful off-topic questions get a light answer', async ({ page }) => {
@@ -64,8 +64,8 @@ test('a rejected AI reply is replaced by the approved scripted price answer', as
   await start(page);
   const reply = await ask(page, 'price please #fake:fixed-price');
   expect(reply).not.toContain('fixed');
-  expect(reply).toContain('websites start at $850 for a one-page site');
-  expect(reply).toContain('optional care plans are $49 or $99 a month');
+  expect(reply).toContain('Websites start at $850 for a one-page site');
+  expect(reply).toContain('Optional care plans are $49 or $99 a month');
   await expect(lastNote(page)).toContainText(NOTE.busy);
 });
 
@@ -73,7 +73,7 @@ test('when the daily limit is reached, the visitor gets the scripted answer in t
   await page.route('**/chat', (route) => route.fulfill({ status: 429, contentType: 'application/json', body: JSON.stringify({ fallback: true, reason: 'limit', lang: 'ru' }) }));
   await start(page);
   const reply = await ask(page, 'сколько стоит сайт?');
-  expect(reply).toContain('сайты стоят от $850');
+  expect(reply).toContain('Сайты стоят от $850');
   await expect(lastNote(page)).toContainText(NOTE.ru_limit);
 });
 
@@ -83,7 +83,7 @@ test('when the Worker is unreachable, the scripted answer appears without an err
   await page.route('**/chat', (route) => route.abort('connectionrefused'));
   await start(page);
   const reply = await ask(page, 'what has she built?');
-  expect(reply).toContain('enrolla');
+  expect(reply).toContain('Enrolla');
   await expect(lastNote(page)).toContainText(NOTE.busy);
   expect(errors).toEqual([]);
 });
@@ -94,7 +94,7 @@ test('a hanging Worker times out into the scripted answer', async ({ page }) => 
   await start(page);
   await page.locator('#q').fill('how much is a website?');
   await page.locator('#q').press('Enter');
-  await expect(page.locator('.term-log .a').last()).toContainText('websites start at $850', { timeout: 25_000 });
+  await expect(page.locator('.term-log .a').last()).toContainText('Websites start at $850', { timeout: 25_000 });
   await expect(lastNote(page)).toContainText(NOTE.busy);
 });
 
@@ -107,7 +107,7 @@ test('questions are capped at 500 characters in the input', async ({ page }) => 
 test('commands stay local and never call the AI', async ({ page }) => {
   const calls = await start(page);
   const prices = await ask(page, '/prices');
-  expect(prices).toContain('websites start at $850');
+  expect(prices).toContain('Websites start at $850');
   await page.locator('#q').fill('/clear');
   await page.locator('#q').press('Enter');
   await expect(page.locator('.term-log .a')).toHaveCount(0);
@@ -119,21 +119,21 @@ test('commands stay local and never call the AI', async ({ page }) => {
 
 test('with no endpoint configured (as on the live site today), no AI request is made', async ({ page }) => {
   const calls = await start(page, { ai: false });
-  expect(await ask(page, 'how much is a website?')).toContain('websites start at $850');
+  expect(await ask(page, 'how much is a website?')).toContain('Websites start at $850');
   expect(calls).toHaveLength(0);
 });
 
 test('"who are you" never claims a live AI when the AI is off', async ({ page }) => {
   await start(page, { ai: false });
   const reply = await ask(page, 'who are you?');
-  expect(reply).toContain("olga's robot helper");
-  expect(reply).not.toContain('ai assistant');
+  expect(reply).toContain("Olga's little robot helper");
+  expect(reply).not.toMatch(/AI assistant/i);
 });
 
 test('"who are you" falls back to the AI-enabled wording when the AI is on but unavailable', async ({ page }) => {
   await page.route('**/chat', (route) => route.abort('connectionrefused'));
   await start(page);
-  expect(await ask(page, 'who are you?')).toContain('olga’s ai assistant');
+  expect(await ask(page, 'who are you?')).toContain("Olga's AI assistant");
 });
 
 test('the thinking line, typing effect and short speech line still work', async ({ page }) => {
