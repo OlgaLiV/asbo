@@ -354,6 +354,21 @@ async function askAI(q, lang) {
   return { ...base, note: NOTE[data && data.reason === 'limit' ? 'limit' : 'busy'][lang] };
 }
 
+// The privacy notice exists on the page only when AI is on: a line in the terminal opens it, and closing it returns
+// to the terminal.
+if (AI_URL) {
+  const tpl = $('[data-privacy-notice]');
+  tpl.replaceWith(tpl.content);
+  const line = document.createElement('p');
+  line.className = 'ai-note';
+  line.innerHTML = 'AI answers · <button type="button" data-open="privacy">Privacy</button>';
+  $('[data-log]').appendChild(line);
+  $$('[data-priv-lang]').forEach((b) => b.addEventListener('click', () => {
+    $$('[data-priv-lang]').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+    $$('[data-priv]').forEach((d) => { d.hidden = d.dataset.priv !== b.dataset.privLang; });
+  }));
+}
+
 // ---------- Terminal ----------
 const log = $('[data-log]');
 const input = $('#q');
@@ -458,8 +473,10 @@ function open(name, { typing = true } = {}) {
 }
 function close(restore = true) {
   if (!openPanel) return;
+  const fromPrivacy = openPanel.dataset.panel === 'privacy';
   openPanel.hidden = true;
   openPanel = null;
+  if (restore && fromPrivacy) { open('terminal', { typing: false }); $('.ai-note button').focus(); return; }
   if (restore && lastFocus) lastFocus.focus();
 }
 $$('[data-open]').forEach((b) => b.addEventListener('click', () => open(b.dataset.open)));

@@ -38,6 +38,7 @@ Phone tests also resize to 320, 375, 390 and 430 px; the no-sideways-scroll swee
 | terminal | fits phone screens, long EN/RU/UK text wraps, input ≥ 16 px (no iOS zoom), conversation scroll doesn't move the page, commands, chips |
 | mobile-layout | phone nav slides away instead of covering the robot (several widths, landscape, every scroll step) and returns on scroll up or focus; panel close buttons stay in their corner at any scroll position (long Services content); terminal stays inside the visible screen with a simulated keyboard, keeps the latest answer above the input, restores when the keyboard closes; suggested questions don't pop up the phone keyboard |
 | chat-voice | every ASBO line in EN/RU/UK starts with a capital and spells ASBO and Olga with capitals, no "prepared notes"; no CSS lowercasing; visitor text shown as typed; every part of a multi-part message answered (EN/RU/UK); weather/time answered honestly with an offer; repeated questions get a light, different reply; /clear starts fresh |
+| `privacy-notice` | AI privacy notice: absent while AI is off; with AI on (fake model) the terminal line, panel, three languages, close behaviour and accessibility, 320 to 1280px |
 | multilingual | services, prices, contact, projects and unknown questions in EN/RU/UK answered in the same language with the same facts |
 | accessibility | axe WCAG 2 A/AA on home, Services and terminal; accessible names; keyboard; 44 px touch targets |
 | ai-logic | ASBO reply checker (prices, wording, languages), price loading and fallback, what the model is told, scripted fallbacks pass the checker |
@@ -86,6 +87,8 @@ Record each run:
 |---|---|---|---|---|---|---|
 | 2026-10-31 | iPhone (model not recorded) | not recorded | Safari | 1313423 (local preview) | nav, Services package switch, terminal (no zoom, wrapping, RU/UK) | none (reported "looks good" by Olga) |
 | 2026-11-23 | iPhone (model not recorded) | not recorded | Safari | 3e14822 + uncommitted mobile fixes (local preview) | nav slides away on scroll and returns (portrait, landscape), suggested question without keyboard, terminal with keyboard open and closed, × closes it, panel × stays reachable in Services, Work, About | none (all checks passed, reported by Olga) |
+| 2026-11-24 | iPhone (model not recorded) | not recorded | Safari | 98432b9 (live site, asboagent.com) | nav does not cover the robot while scrolling, terminal usable as the keyboard opens and closes, × reachable after scrolling Services and Work | none (all three work, reported by Olga) |
+| 2026-11-24 | iPhone (model not recorded) | not recorded | Safari | 98432b9 + uncommitted privacy notice (local preview, AI off) | the Privacy line and notice work on the iPhone (individual steps not listed) | none ("Yes, it works", reported by Olga) |
 
 ## 4. Release checklist (adapted from §11)
 
@@ -93,6 +96,9 @@ Record each run:
 - [ ] `npm test` passed locally; failures, if any, were reported and fixed or explicitly accepted.
 - [ ] Mobile-affecting change: iPhone checklist run and recorded above.
 - [ ] No secrets or personal data in the repo; prices only in `services.json`.
+- [ ] Turning AI on: after the final Worker deploy, recheck that the privacy notice still matches: Worker Logs, Traces
+      and Issues off, no exports; Anthropic Console data controls at 30 days, user feedback off, Development Partner
+      Program not joined. Olga approved the EN, RU and UK texts, and the Privacy link and panel work on her iPhone.
 - [ ] Deployed through GitHub Actions; the live smoke job passed; commit recorded.
 
 ## 5. Defect log
@@ -105,8 +111,8 @@ Record each run:
 | D4 | 2026-10-31 | Services (phone) | open a package | moves to top of panel | stays in place; later jumped when switching | fixed; verified on iPhone 2026-10-31 |
 | D5 | 2026-10-31 | Accessibility | axe scan | WCAG AA contrast | pale labels below AA contrast | accepted, non-blocking (Olga, 2026-10-31) |
 | D6 | 2026-10-31 | Accessibility (phone) | measure nav | tap targets ≥ 44 px | icons 34 px, tabs 30 px tall | accepted, non-blocking (Olga, 2026-10-31) |
-| D8 | 2026-11-23 | Phone nav (iPhone) | scroll down | nav clear of the robot | nav covers the robot's head | fixed (nav slides away on scroll down, returns on scroll up); verified on iPhone 2026-11-23 (local preview) |
-| D9 | 2026-11-23 | Terminal (iPhone) | tap a suggested question or the input | terminal usable with the keyboard | terminal jumps up; header and × hidden; answer button under the input | fixed (terminal pinned to the visible screen; no keyboard for suggested questions); verified on iPhone 2026-11-23 (local preview) |
-| D10 | 2026-11-23 | Panels (iPhone) | scroll Services or Work | × reachable | × scrolls away | fixed (× sticks to the corner, all panels); verified on iPhone 2026-11-23 (local preview) |
-| D11 | 2026-11-23 | ASBO chat (iPhone) | "Hi, how are you? Who are you?", "What is the weather today?", repeat a question | greeting, answer and intro; honest weather reply; light reply to repeats; normal capitals | all lowercase; one part answered; "prepared notes" wording; identical repeats | fixed locally (asbo-intents.js voice and talk lines, asbo.js answers every part and remembers the chat); not yet published |
+| D8 | 2026-11-23 | Phone nav (iPhone) | scroll down | nav clear of the robot | nav covers the robot's head | fixed (nav slides away on scroll down, returns on scroll up); verified on iPhone 2026-11-23 (local preview) and 2026-11-24 (live site) |
+| D9 | 2026-11-23 | Terminal (iPhone) | tap a suggested question or the input | terminal usable with the keyboard | terminal jumps up; header and × hidden; answer button under the input | fixed (terminal pinned to the visible screen; no keyboard for suggested questions); verified on iPhone 2026-11-23 (local preview) and 2026-11-24 (live site) |
+| D10 | 2026-11-23 | Panels (iPhone) | scroll Services or Work | × reachable | × scrolls away | fixed (× sticks to the corner, all panels); verified on iPhone 2026-11-23 (local preview) and 2026-11-24 (live site) |
+| D11 | 2026-11-23 | ASBO chat (iPhone) | "Hi, how are you? Who are you?", "What is the weather today?", repeat a question | greeting, answer and intro; honest weather reply; light reply to repeats; normal capitals | all lowercase; one part answered; "prepared notes" wording; identical repeats | fixed locally (asbo-intents.js voice and talk lines, asbo.js answers every part and remembers the chat); published 2026-11-24 in 98432b9, live chat verified on desktop and simulated phone |
 | D7 | 2026-10-31 | ASBO prices | ask about prices | match services.json | quoted old AI-bot prices | fixed (prices read from services.json) |

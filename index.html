@@ -277,6 +277,42 @@
     </section>
   </div>
 
+  <!-- AI privacy notice: added to the page by asbo.js only when the AI assistant is on -->
+  <template data-privacy-notice>
+  <div class="overlay" data-panel="privacy" hidden>
+    <section class="sheet narrow" role="dialog" aria-modal="true" aria-label="AI answers and privacy">
+      <button class="close" type="button" data-close aria-label="Close">×</button>
+      <p class="mono kicker">/privacy</p>
+      <div class="priv-langs mono" role="group" aria-label="Language">
+        <button type="button" data-priv-lang="en" aria-pressed="true">EN</button>
+        <button type="button" data-priv-lang="ru" lang="ru" aria-pressed="false">RU</button>
+        <button type="button" data-priv-lang="uk" lang="uk" aria-pressed="false">UK</button>
+      </div>
+      <div class="priv" data-priv="en" lang="en">
+        <h2>How ASBO answers</h2>
+        <p>ASBO is an AI assistant. The question you type and up to 10 recent chat messages go to AI Studio by Olga's server on Cloudflare, which passes them to Anthropic's Claude AI to write a reply. Commands like /work are handled in your browser. Please don't share personal or sensitive information.</p>
+        <p><b>What we keep:</b> our server doesn't save your messages or ASBO's replies. To limit use, it counts replies using a scrambled code made from your IP address that changes every day. Those counts are used only for that day's limits, though Cloudflare can restore them for up to 30 days. Cloudflare may process technical data, such as IP addresses, under its own policies.</p>
+        <p><b>What Anthropic keeps:</b> Anthropic says it deletes API messages within 30 days by default, and may keep them longer to enforce its usage policy (up to 2 years for flagged content) or comply with the law. By default, it doesn't use them to train its models.</p>
+        <p><b>Good to know:</b> AI can make mistakes. Olga confirms scope and price with you before work begins. If AI isn't available, ASBO shows prewritten answers. Questions? <a href="mailto:asboagent@gmail.com">asboagent@gmail.com</a></p>
+      </div>
+      <div class="priv" data-priv="ru" lang="ru" hidden>
+        <h2>Как отвечает ASBO</h2>
+        <p>ASBO — ИИ-ассистент. Ваш вопрос и до 10 последних сообщений чата отправляются на сервер AI Studio by Olga в Cloudflare, который передаёт их ИИ Claude компании Anthropic, чтобы составить ответ. Команды вроде /work обрабатываются в вашем браузере. Пожалуйста, не сообщайте личную или конфиденциальную информацию.</p>
+        <p><b>Что храним мы:</b> наш сервер не сохраняет ваши сообщения и ответы ASBO. Чтобы ограничить число ответов, он считает их с помощью необратимо преобразованного кода, который создаётся из вашего IP-адреса и меняется каждый день. Эти счётчики используются только для лимитов этого дня, но Cloudflare может восстановить их в течение 30 дней. Cloudflare может обрабатывать технические данные, например IP-адреса, по своим правилам.</p>
+        <p><b>Что хранит Anthropic:</b> по данным Anthropic, сообщения API по умолчанию удаляются в течение 30 дней, но могут храниться дольше для соблюдения правил использования (до 2 лет, если содержимое отмечено системой) или требований закона. По умолчанию они не используются для обучения моделей.</p>
+        <p><b>Полезно знать:</b> ИИ может ошибаться. Объём работ и цену Ольга подтверждает с вами до начала работы. Если ИИ недоступен, ASBO показывает заранее подготовленные ответы. Вопросы? <a href="mailto:asboagent@gmail.com">asboagent@gmail.com</a></p>
+      </div>
+      <div class="priv" data-priv="uk" lang="uk" hidden>
+        <h2>Як відповідає ASBO</h2>
+        <p>ASBO — ШІ-асистент. Ваше запитання та до 10 останніх повідомлень чату надсилаються на сервер AI Studio by Olga у Cloudflare, який передає їх ШІ Claude компанії Anthropic, щоб скласти відповідь. Команди на кшталт /work обробляються у вашому браузері. Будь ласка, не повідомляйте особисту чи конфіденційну інформацію.</p>
+        <p><b>Що зберігаємо ми:</b> наш сервер не зберігає ваші повідомлення та відповіді ASBO. Щоб обмежити кількість відповідей, він рахує їх за допомогою незворотно перетвореного коду, який створюється з вашої IP-адреси та змінюється щодня. Ці лічильники використовуються лише для лімітів цього дня, але Cloudflare може відновити їх протягом 30 днів. Cloudflare може обробляти технічні дані, як-от IP-адреси, за власними правилами.</p>
+        <p><b>Що зберігає Anthropic:</b> за даними Anthropic, повідомлення API типово видаляються протягом 30 днів, але можуть зберігатися довше для дотримання правил використання (до 2 років, якщо вміст позначено системою) або вимог закону. Типово вони не використовуються для навчання моделей.</p>
+        <p><b>Корисно знати:</b> ШІ може помилятися. Обсяг робіт і ціну Ольга підтверджує з вами до початку роботи. Якщо ШІ недоступний, ASBO показує заздалегідь підготовлені відповіді. Запитання? <a href="mailto:asboagent@gmail.com">asboagent@gmail.com</a></p>
+      </div>
+    </section>
+  </div>
+  </template>
+
   <script src="asbo-intents.js"></script>
   <script src="asbo.js"></script>
   <script src="services.js"></script>

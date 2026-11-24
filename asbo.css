@@ -156,6 +156,15 @@ svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width:
 .term-log .sys { color: var(--cyan); }
 .term-log .sys span { color: #9BA6E0; }
 .term-log .dim { color: rgba(221, 225, 242, 0.45); }
+/* AI privacy notice (only on the page when AI is on) */
+.term-log .ai-note { margin: 0; color: #9BA6E0; }
+.ai-note button { display: inline-block; min-width: 44px; min-height: 44px; padding: 0 4px; border: 0; background: none; color: var(--cyan); font: inherit; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.priv-langs { display: flex; gap: 8px; margin: 0 0 18px; }
+.priv-langs button { min-width: 44px; min-height: 44px; border: 1px solid #D9D8E4; border-radius: 10px; background: #fff; color: var(--ink-2); font: inherit; cursor: pointer; }
+.priv-langs button[aria-pressed="true"] { border-color: currentColor; color: #12152A; }
+.priv p { color: var(--ink-2); max-width: 620px; }
+.priv b { color: #12152A; }
+.priv a { color: #0B7488; }
 .term-log .q { margin-top: 14px; color: #fff; }
 .term-log .q::before { content: '$ guest@asbo:~$ '; color: var(--cyan); }
 .term-log .state { font-size: 9.5px; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(0, 227, 248, 0.6); }

@@ -1,7 +1,7 @@
 # ASBO chat Worker
 
-Connects the ASBO terminal on asboagent.com to a Claude model. Status: **built and tested locally with a fake model
-only.** No account, key, deployment or paid call exists yet.
+Connects the ASBO terminal on asboagent.com to a Claude model. Status: **deployed without an API key
+(2026-11-24), so it makes no paid calls;** asboagent.com doesn't use it yet. Replies are tested with a fake model only.
 
 ## How a question is answered
 
@@ -63,8 +63,8 @@ of realistic questions against the real model (a small, approved paid run) and r
   calls. SDK retries are off, so one slot means at most one paid call.
 - **Bounded size per call:** 500-character question, at most 10 turns of up to 1,500 characters each, and at most 1,024
   output tokens.
-- **Worst case on Haiku 5.5 at today's prices:** about 100 × (12,000 input tokens × $0.10/M + 1,024 output tokens ×
-  $0.50/M) ≈ **$0.17 a day**. This is an estimate, to confirm with real usage.
+- **Worst case on Haiku 5.5 at today's prices:** about 100 × (12,000 input tokens × $0.125/M, the cache-write price, + 1,024
+  output tokens × $0.50/M) ≈ **$0.20 a day**, about $6 a month. This is an estimate, to confirm with real usage.
 
 **What it does not protect against:**
 - **Origin checks** stop other websites' browsers, but a script can fake the Origin header.
@@ -89,9 +89,9 @@ of realistic questions against the real model (a small, approved paid run) and r
 npm test            # all suites; Playwright starts the site and two local Workers with FAKE_MODEL=1
 ```
 
-## Setup steps (for Olga, when ready; nothing here has been done)
+## Setup steps (done 2026-11-24: 1, 2, 3, 5 and 7, and 6 except the API key)
 
-1. **Anthropic Console:** create an organization at console.anthropic.com. Payment details are entered by you.
+1. **Anthropic Console:** create an organization at platform.claude.com. Payment details are entered by you.
 2. **A separate workspace** (for example "asbo-site"), so this key has its own spend limit.
 3. **Billing:** buy a small prepaid credit (you choose the amount), leave auto-reload **off**, and set the workspace's
    monthly spend limit. Check in the Console what happens at zero balance and at the limit, and whether usage
@@ -99,9 +99,11 @@ npm test            # all suites; Playwright starts the site and two local Worke
 4. **API key:** create one in that workspace, named for example "asbo-worker". Never paste it into chat, code,
    commits or the browser.
 5. **Cloudflare:** create a free account, then in your own terminal: `cd worker && npx wrangler login`.
-6. **Secrets:** run `npx wrangler secret put ANTHROPIC_API_KEY` and paste the key at its prompt. Then run
+6. **Secrets** (each `secret put` redeploys the Worker at once, so it needs the same approval as a deploy; deploy first,
+   step 7): run `npx wrangler secret put ANTHROPIC_API_KEY` and paste the key at its prompt. Then run
    `npx wrangler secret put VISITOR_SALT` with any long random text, and `npx wrangler secret put INTERNAL_TERMS` with
-   the private list of unpublished names and figures (the same list as `asbo-previews/internal-terms.txt`).
+   the private list of unpublished names and figures (`asbo-previews/internal-terms-secret.txt`: one line, and no commas
+   inside a term, because the list is split at commas).
 7. **Deploy:** `npx wrangler deploy` (with Olga's approval). This gives a `https://asbo-chat.<account>.workers.dev`
    address; no DNS change is needed.
 8. **Check** that `wrangler.toml` has no `DEV_MODE` or `FAKE_MODEL`, that `ALLOWED_ORIGINS` is `https://asboagent.com`,
@@ -110,4 +112,5 @@ npm test            # all suites; Playwright starts the site and two local Worke
    Worker, then read the replies and the rejection rate.
 10. **Turn ASBO on:** put `https://asbo-chat.<account>.workers.dev/chat` in the `asbo-ai-endpoint` meta tag, publish
     through the normal tested deploy, and run the iPhone check.
-11. **Privacy notice:** finalise it (`asbo-previews/privacy-notice-DRAFT.md`) before step 10.
+11. **Privacy notice:** in `index.html` (`data-privacy-notice`), shown only when AI is on. Before step 10, re-check its
+   claims: Worker logs, traces and issues off; Console data controls at 30 days, user feedback off.

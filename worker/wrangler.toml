@@ -15,6 +15,10 @@ SITE_DAILY = "100"
 VISITOR_DAILY = "30"
 VISITOR_PER_MINUTE = "10"
 
+# No Workers Logs: the privacy notice relies on nothing being stored here.
+[observability]
+enabled = false
+
 [[durable_objects.bindings]]
 name = "LIMITER"
 class_name = "Limiter"
