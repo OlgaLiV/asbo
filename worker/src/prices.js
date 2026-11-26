@@ -24,7 +24,8 @@ export function parsePrices(data) {
   }
 }
 
-export const usd = (n) => '$' + n.toLocaleString('en-US');
+// Plain grouping: the first locale formatting call in a fresh Worker costs milliseconds of CPU.
+export const usd = (n) => '$' + String(n).replace(/\B(?=(\d{3})+$)/g, ',');
 
 // The price table given to the model, one line per priced service.
 export function priceTable(prices) {

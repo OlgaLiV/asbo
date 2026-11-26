@@ -1,0 +1,25 @@
+# TEMPORARY CPU-test Worker. Separate from the live "asbo-chat": own name, own address, no key, no storage, canned model.
+# Deployed, measured and deleted by run.mjs, only with Olga's approval.
+name = "asbo-chat-cputest"
+main = "index.js"
+compatibility_date = "2026-11-01"
+compatibility_flags = ["nodejs_compat"]
+workers_dev = true
+preview_urls = false
+
+[vars]
+AI_ACCESS = "closed"
+ALLOWED_ORIGINS = "https://cputest.invalid"
+PRICES_URL = "https://asboagent.com/services.json"
+VISITOR_SALT = "cputest-nothing-stored"
+SITE_DAILY = "120"
+VISITOR_DAILY = "120"
+VISITOR_PER_MINUTE = "120"
+
+[observability]
+enabled = false
+
+[[rules]]
+type = "Text"
+globs = ["**/*.md"]
+fallthrough = true

@@ -1,21 +1,33 @@
 // Playwright setup for the ASBO site. See QA_PLAYBOOK.md for what each project and suite covers.
 // Viewport projects are simulations: they do not replace the real-iPhone checklist in QA_PLAYBOOK.md.
 import { defineConfig, devices } from '@playwright/test';
+import { randomBytes } from 'node:crypto';
+import fs from 'node:fs';
 
 const PORT = 4173;
 const BASE_URL = process.env.BASE_URL || `http://localhost:${PORT}/`;
 export const AI_PORT = 8787; // ASBO Worker for page tests (fake model, never a paid call)
 export const API_PORT = 8788; // separate Worker for limit tests, so counters don't collide
 
+export const LOCK_PORT = 8789; // Worker with the lock closed
+
+// Throwaway lock token for this run only: made here, kept in a git-ignored file the local Worker reads, never printed.
+const LOCK_ENV = '.wrangler-test/lock.env';
+if (!process.env.ASBO_TEST_TOKEN) {
+  process.env.ASBO_TEST_TOKEN = randomBytes(32).toString('base64url');
+  fs.mkdirSync('.wrangler-test', { recursive: true });
+  fs.writeFileSync(LOCK_ENV, `TEST_TOKEN=${process.env.ASBO_TEST_TOKEN}\n`, { mode: 0o600 });
+}
+
 // Local ASBO Worker with the fake model. DEV_MODE enables test-only routes and headers; never set in production.
 // The page-test Worker gets high per-visitor limits (parallel browsers share one local IP); the limit Worker uses
 // the production limits.
-const worker = (port, dir, [site, day, minute]) => ({
-  command: `cd worker && npx wrangler dev --port ${port} --ip 127.0.0.1 --var FAKE_MODEL:1 --var DEV_MODE:1 `
+const worker = (port, dir, [site, day, minute], access = 'open') => ({
+  command: `cd worker && npx wrangler dev --port ${port} --ip 127.0.0.1 --var FAKE_MODEL:1 --var DEV_MODE:1 --var AI_ACCESS:${access} ${access === 'open' ? '' : `--env-file ../${LOCK_ENV} `}`
     + `--var ALLOWED_ORIGINS:http://localhost:${PORT} --var PRICES_URL:http://localhost:${PORT}/services.json `
     + `--var INTERNAL_TERMS:testsecretproject --var SITE_DAILY:${site} --var VISITOR_DAILY:${day} --var VISITOR_PER_MINUTE:${minute} --persist-to ../.wrangler-test/${dir}`,
   url: `http://127.0.0.1:${port}/__test/usage`,
-  reuseExistingServer: !process.env.CI,
+  reuseExistingServer: !process.env.CI && access === 'open', // the lock Worker needs this run's token
   timeout: 90_000,
   env: { WRANGLER_SEND_METRICS: 'false' },
 });
@@ -46,5 +58,6 @@ export default defineConfig({
     { command: `python3 -m http.server ${PORT}`, url: `http://localhost:${PORT}/`, reuseExistingServer: true, timeout: 20_000 },
     worker(AI_PORT, 'ui', [100000, 100000, 100000]),
     worker(API_PORT, 'api', [100, 30, 10]),
+    worker(LOCK_PORT, 'lock', [100, 30, 10], 'closed'),
   ],
 });

@@ -1,7 +1,12 @@
 # ASBO chat Worker
 
-Connects the ASBO terminal on asboagent.com to a Claude model. Status: **deployed without an API key
-(2026-11-24), so it makes no paid calls;** asboagent.com doesn't use it yet. Replies are tested with a fake model only.
+Connects the ASBO terminal on asboagent.com to a Claude model. Status: **deployed (old
+version, without the lock); Olga deleted its API key in the Console on 2026-11-24;** asboagent.com doesn't use it yet. First real-model test (2026-11-24): 15
+questions, 14 replies passed the checker, 1 was blocked, and CPU was 13–210 ms a request (Free plan limit: 10 ms).
+Keyless Cloudflare test of the first fixes (2026-11-25, canned model): 14 of 45 requests over 10 ms, max 40 ms.
+Then the SDK was replaced by one direct request and more first use moved to start-up. Keyless Cloudflare test
+(2026-11-26, canned model): 0 of 45 over 10 ms, max 6 ms (fresh copies: 7, max 6 ms). Real network, the shared
+counter and real replies are not measured yet.
 
 ## How a question is answered
 
@@ -39,7 +44,9 @@ It is a safety net of pattern rules, not a proof that a reply is correct.
 - **Unpublished items:** any word or figure in the `INTERNAL_TERMS` secret (a private, comma-separated list set at
   deploy, never in this public code) is rejected.
 - **Consistency:** the prices the model says it used must match both the table and the text.
-- **Language:** the reply must be in the visitor's language.
+- **Language:** the reply must be in the visitor's language, with Olga's name written naturally in Russian and Ukrainian.
+- **Other claims:** addressing a visitor as Olga, booking or passing messages on, web addresses, a made-up discount
+  policy, a domain presented as part of a care plan, and a few known wrong project claims.
 
 **It can miss:**
 - **Wrong facts with no number and no listed keyword,** for example a wrong policy ("olga updates sites built by
@@ -60,7 +67,7 @@ of realistic questions against the real model (a small, approved paid run) and r
   synchronous SQLite transaction, so simultaneous requests can't overshoot. Tested: 150 simultaneous requests gave
   exactly 100 replies.
 - **Slots are counted before the call:** a failed call still uses its slot, so errors can't be used to get extra
-  calls. SDK retries are off, so one slot means at most one paid call.
+  calls. The model request is sent once and never retried, so one slot means at most one paid call.
 - **Bounded size per call:** 500-character question, at most 10 turns of up to 1,500 characters each, and at most 1,024
   output tokens.
 - **Worst case on Haiku 5.5 at today's prices:** about 100 × (12,000 input tokens × $0.125/M, the cache-write price, + 1,024
@@ -82,6 +89,23 @@ of realistic questions against the real model (a small, approved paid run) and r
 - **Provider-side controls** are the outer limit (see Setup). Anthropic's docs say API requests stop when prepaid
   credits run out, and a monthly spend limit can be set per workspace. How exactly the provider enforces those at the
   boundary isn't verified here; check the Console's billing and limits pages when setting up.
+
+## Test lock (closed by default)
+
+`src/lock.js`: until `AI_ACCESS` in `wrangler.toml` is exactly `"open"`, the Worker answers only requests whose
+`x-asbo-test-token` header matches the `TEST_TOKEN` secret (32+ characters; no secret means nobody gets in). The check
+comes after the origin check and before the body, the limits and the model, so a refused request costs no slot and no
+paid call. Browsers can't send the header from a page. Never put the token in an address (addresses get logged), the
+site, the repo or a command line. Going live means `AI_ACCESS = "open"` plus deleting the secret. Once open, the limits
+and spending caps are the protection again.
+
+## Temporary CPU test on Cloudflare (no key, canned model)
+
+`cputest/`: a separate Worker, `asbo-chat-cputest`, that runs the real request code and checker against canned
+replies. No key, no storage, locked. It logs only a random copy id and a request count, so the report can separate a
+fresh copy's first request from later ones. While it runs it keeps the Mac awake; Ctrl+C stops the questions and deletes
+the Worker. `node worker/cputest/run.mjs --local` rehearses it;
+`--deploy-and-remove` (Olga's approval) deploys, measures and deletes it; `--remove` deletes it after an interruption.
 
 ## Running it locally (fake model, no account needed)
 

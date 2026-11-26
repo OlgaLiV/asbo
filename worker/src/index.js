@@ -5,12 +5,18 @@
 import knowledge from './knowledge.md';
 import bundledServices from '../../services.json';
 import { Limiter } from './limiter.js';
-import { loadPrices, PRICED_IDS } from './prices.js';
+import { accessAllowed } from './lock.js';
+import { loadPrices, parsePrices, PRICED_IDS } from './prices.js';
 import { buildSystem, ACTIONS } from './prompt.js';
 import { callClaude, fakeModel, ModelUnavailable } from './model.js';
-import { validateReply, detectLang } from './validate.js';
+import { validateReply, detectLang, warmUp } from './validate.js';
 
 export { Limiter };
+
+// Work done while the Worker starts isn't charged to a visitor's request, so the first use of the checker and the
+// prompt builder happens here, on the bundled prices. Nothing from it is kept or sent.
+const samplePrices = parsePrices(bundledServices);
+if (samplePrices) { warmUp(samplePrices); buildSystem(knowledge, samplePrices); }
 
 const MAX_MESSAGE = 500;
 const MAX_TURNS = 10;
@@ -69,6 +75,8 @@ export default {
     if (request.method === 'OPTIONS') return new Response(null, { status: cors.ok ? 204 : 403, headers: cors.headers });
     if (request.method !== 'POST') return json({ error: 'method' }, 405, cors.headers);
     if (!cors.ok) { log({ outcome: 'forbidden-origin' }); return json({ fallback: true, reason: 'forbidden' }, 403, {}); }
+
+    if (!(await accessAllowed(request, env))) { log({ outcome: 'locked' }); return json({ fallback: true, reason: 'closed' }, 403, cors.headers); }
 
     const raw = await request.text();
     if (raw.length > MAX_BODY) return json({ fallback: true, reason: 'too_long' }, 413, cors.headers);

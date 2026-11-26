@@ -13,8 +13,5 @@
     "@axe-core/playwright": "^4.10.0",
     "@playwright/test": "^1.56.0",
     "wrangler": "^4.166.0"
-  },
-  "dependencies": {
-    "@anthropic-ai/sdk": "^1.12.0"
   }
 }

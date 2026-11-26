@@ -1,30 +1,42 @@
-// Talks to the model. Real calls use the Anthropic SDK with the key held only in the Worker's secret
-// ANTHROPIC_API_KEY. FAKE_MODEL=1 swaps in a local responder so the whole flow can be tested without an account
-// or any paid call.
-import Anthropic from '@anthropic-ai/sdk';
+// Talks to the model with one direct HTTPS request; the key is held only in the Worker's secret ANTHROPIC_API_KEY.
+// No SDK: its first use in a fresh Worker was the largest CPU cost measured locally (free plan: 10 ms a request). The
+// request is the one the SDK sent in the first real-model test (same address, API version, key header, body, settings).
+// FAKE_MODEL=1 swaps in a local responder so the whole flow can be tested without an account or any paid call.
 import { replySchema } from './prompt.js';
 import { usd } from './prices.js';
 
 export class ModelUnavailable extends Error {}
 
-export async function callClaude({ env, system, messages, priceKeys }) {
-  const client = new Anthropic({ apiKey: env.ANTHROPIC_API_KEY, timeout: 12_000, maxRetries: 0 }); // no retries: one counted reply = at most one paid call
-  let response;
-  try {
-    response = await client.messages.create({
+export const API_URL = 'https://api.anthropic.com/v1/messages';
+export const API_VERSION = '2026-10-21';
+
+export function claudeRequest({ env, system, messages, priceKeys }) {
+  return {
+    method: 'POST',
+    headers: { 'content-type': 'application/json', accept: 'application/json', authorization: `Bearer ${env.ANTHROPIC_API_KEY}`, 'anthropic-version': API_VERSION },
+    body: JSON.stringify({
       model: env.MODEL || 'claude-haiku-5-5',
       max_tokens: 1024,
       thinking: { type: 'disabled' }, // short factual chat; Haiku 5.5 accepts this at its default effort
       system: [{ type: 'text', text: system, cache_control: { type: 'ephemeral' } }],
       output_config: { format: { type: 'json_schema', schema: replySchema(priceKeys) } },
       messages,
-    });
+    }),
+  };
+}
+
+// One attempt only, never retried: one counted reply = at most one paid call.
+export async function callClaude(args, { fetchImpl = fetch, timeoutMs = 12_000 } = {}) {
+  let r, response;
+  try {
+    r = await fetchImpl(API_URL, { ...claudeRequest(args), signal: AbortSignal.timeout(timeoutMs) });
   } catch (err) {
-    if (err instanceof Anthropic.APIError) throw new ModelUnavailable(`api ${err.status ?? 'connection'}`);
-    throw new ModelUnavailable('network');
+    throw new ModelUnavailable(err?.name === 'TimeoutError' ? 'api connection' : 'network');
   }
-  if (response.stop_reason !== 'end_turn') throw new ModelUnavailable(`stop ${response.stop_reason}`);
-  const text = response.content.find((b) => b.type === 'text')?.text;
+  if (!r.ok) throw new ModelUnavailable(`api ${r.status}`);
+  try { response = await r.json(); } catch { throw new ModelUnavailable('invalid response'); }
+  if (response?.stop_reason !== 'end_turn') throw new ModelUnavailable(`stop ${response?.stop_reason}`);
+  const text = Array.isArray(response.content) ? response.content.find((b) => b?.type === 'text')?.text : undefined;
   try {
     return { ...JSON.parse(text), usage: response.usage };
   } catch {
