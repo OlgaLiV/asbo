@@ -48,15 +48,18 @@ const NOT_FIXED = rx(/(?:\bnot|n't) (?:a |the |your )?(?:fixed|flat|final|total)
 const MONTHLY = rx(/month|\/mo\b|в месяц|ежемесячн|месячн|на місяць|щомісячн|місячн/);
 const ONE_TIME = rx(/one[- ]time|разов/);
 const NEGATION = rx(/\bno\b|\bnot\b|n't\b|\bnone\b|\bnever\b|\bнет\b|\bне\b|\bнемає\b|\bнема\b|\bбез\b|\bні\b|\bникак\w*|\bжодн\w*/);
-const DISCOUNT = rx(/discount|\bcoupons?\b|\bpromo\b|promo ?code|voucher|\bon sale\b|special (?:offer|rate|price|deal)|(?:reduced|discounted|promised) (?:price|rate)|\b(?:\d+|five|ten|fifteen|twenty|half) ?(?:%|percent) off\b|half[- ]price|cheaper|lower price|скидк|скидок|знижк|знижок|\bакци\w*|промокод|купон|дешевле|дешевше|распродаж/);
+const DISCOUNT = rx(/discount|\bcoupons?\b|\bpromo\b|\bpromotion\w*|promo ?code|voucher|\bon sale\b|special (?:offer|rate|price|deal)|(?:reduced|discounted|promised) (?:price|rate)|\b(?:\d+|five|ten|fifteen|twenty|half) ?(?:%|percent) off\b|half[- ]price|cheaper|lower price|скидк|скидок|знижк|знижок|\bакци\w*|промокод|купон|дешевле|дешевше|распродаж/);
 // Reassurances contain a negative word but deny nothing ("no problem, the discount applies").
 const REASSURANCE = rx(/\bno (?:problem|worries|doubt)\b|\bdon't worry\b|\bwhy not\b|\bне (?:волнуйтесь|переживайте|беспокойтесь|проблема)\b|\bбез проблем\b|\bне (?:хвилюйтеся|хвилюйтесь|турбуйтеся)\b/g);
 // An explicit refusal of the discount itself covers the whole sentence ("a discount was mentioned, but I can't confirm
 // it"). Refusing something else ("I can't change the scope, but there is a discount") doesn't count.
 const DENIED = rx(/(?:can't|cannot) (?:confirm|approve|apply|offer|promise) (?:it|that|this|one|any|(?:a |the )?discounts?)\b|\bне (?:могу|можу) (?:е[её] |это |её |її |це )?(?:подтвердить|підтвердити)\b/);
 // "No discounts right now" hints at a later one and "never" is a promise; neither policy exists.
-// "ASBO doesn't offer discounts" states a policy Olga hasn't approved; the published pricing just doesn't list any.
-const DISCOUNT_POLICY = rx(/\b(?:doesn't|does not|don't|do not|won't|will not) (?:offer|give|provide|do)\b|\bне (?:предлагает|предлагаем|даёт|дает|предоставляет|делает)\b|\bне (?:пропонує|пропонуємо|дає|надає|робить)\b|\bright now\b|\bcurrently\b|\bat the moment\b|\bat this time\b|\btoday\b|\byet\b|\bnever\b|\bсейчас\b|\bпока\b|\bна данный момент\b|\bникогда\b|\bзараз\b|\bнаразі\b|\bпоки\b|\bніколи\b/);
+// "ASBO doesn't offer discounts" or "there are no approved discounts" states a policy Olga hasn't approved; the published
+// pricing just doesn't list any. "Not right now" hints at a later discount, and "never" is a promise.
+const DISCOUNT_POLICY = rx(/\bapprov\w*|\bодобр\w*|\bзатвердж\w*|\bсхвал\w*|\b(?:doesn't|does not|don't|do not|won't|will not) (?:offer|give|provide|do)\b|\bне (?:предлагает|предлагаем|даёт|дает|предоставляет|делает)\b|\bне (?:пропонує|пропонуємо|дає|надає|робить)\b|\bright now\b|\bcurrently\b|\bat the moment\b|\bat this time\b|\btoday\b|\byet\b|\bnever\b|\bсейчас\b|\bпока\b|\bна данный момент\b|\bникогда\b|\bзараз\b|\bнаразі\b|\bпоки\b|\bніколи\b/);
+// A negative sentence about discounts passes only if it refuses to confirm one or points to the published pricing.
+const PUBLISHED_REF = rx(/\bpublished\b|\blisted\b|\bprice list\b|опубликован\w*|\bуказан\w*|опублікован\w*|зазначен\w*/);
 const PERCENT = rx(/\d+\s?%/);
 const FREE = rx(/(?<![-a-z])free(?![-a-z])|бесплатн|безкоштовн/); // not "bug-free" / "error-free"
 const FREE_OK = rx(/consult|conversation|\bcall\b|images?|photos?|консультац|разговор|розмов|изображен|зображен|фото/);
@@ -128,8 +131,8 @@ export function warmUp(prices) {
   const all = Object.keys(prices).map((service) => ({ service, amount: prices[service].amount }));
   const samples = [
     ['en', `A one-page website starts at ${$('starter')}, a business website at ${$('business')} and an advanced custom website at ${$('advanced')}: one-time starting prices, and the final price is agreed before work begins. Essential Care is ${$('essential')} a month and Business Care ${$('care')} a month. Hosting and an online store are not included. The consultation is free; Nataliya Fillers is in progress. I can't confirm a discount.`, all],
-    ['ru', `Одностраничный сайт стоит от ${$('starter')}, бизнес-сайт до пяти страниц от ${$('business')}, сложный индивидуальный сайт от ${$('advanced')}. Это разовые стартовые цены. Essential Care — ${$('essential')} в месяц. Интернет-магазин не входит. Скидок нет, консультация бесплатная, Ольга ответит.`, all],
-    ['uk', `Односторінковий сайт коштує від ${$('starter')}, бізнес-сайт від ${$('business')}, складний індивідуальний сайт від ${$('advanced')}. Це разові стартові ціни. Business Care — ${$('care')} на місяць. Хостинг не входить. Знижок немає, консультація безкоштовна, Ольга відповість.`, all],
+    ['ru', `Одностраничный сайт стоит от ${$('starter')}, бизнес-сайт до пяти страниц от ${$('business')}, сложный индивидуальный сайт от ${$('advanced')}. Это разовые стартовые цены. Essential Care — ${$('essential')} в месяц. Интернет-магазин не входит. Скидки не указаны в опубликованных ценах, консультация бесплатная, Ольга ответит.`, all],
+    ['uk', `Односторінковий сайт коштує від ${$('starter')}, бізнес-сайт від ${$('business')}, складний індивідуальний сайт від ${$('advanced')}. Це разові стартові ціни. Business Care — ${$('care')} на місяць. Хостинг не входить. Знижки не зазначені в опублікованих цінах, консультація безкоштовна, Ольга відповість.`, all],
     ['en', 'one-page website for a fixed 850 dollars, 20% off, ready in 5 days, guaranteed. hi olga! see www.example.com. i will book it.', []],
   ];
   for (let i = 0; i < 2; i++) {
@@ -165,7 +168,7 @@ export function validateReply(reply, { prices, visitorLang = 'en', claims = null
       for (const part of sentence.replace(REASSURANCE, ' ').split(/;|—|\s(?:but|however|но|але)\s/)) {
         if (!DISCOUNT.test(part)) continue;
         if (!NEGATION.test(part) && !DENIED.test(sentence)) add('discount', part.trim());
-        else if (DISCOUNT_POLICY.test(part)) add('discount-policy', part.trim());
+        else if (DISCOUNT_POLICY.test(part) || (!DENIED.test(sentence) && !PUBLISHED_REF.test(part))) add('discount-policy', part.trim());
       }
     }
     if (CAPABILITY.test(sentence.replace(CANT, ' '))) add('capability');

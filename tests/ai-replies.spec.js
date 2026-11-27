@@ -57,14 +57,13 @@ test.describe('a final or fixed price is still rejected', () => {
 
 test.describe('discounts', () => {
   const ok = [
-    ['en', "I can't confirm that. I don't have any approved discounts, so please ask Olga in a free consultation."],
+    ['en', "I can't confirm that. Discounts are not listed as part of the published pricing, so please ask Olga in a free consultation."],
     ['en', "I can't confirm a discount. The Business Website starts at $1,800, and the final price is agreed before work begins."],
     ['en', "I know a discount was mentioned, but I can't confirm it."],
     ['en', 'I can help you set up a clear idea of what you need.'],
-    ['en', 'There are no approved discounts, promotions or coupons.'],
-    ['en', "Discounts, promotions and coupons aren't something I can approve."],
-    ['ru', 'Одобренных скидок у меня нет, поэтому подтвердить её я не могу.'],
-    ['uk', 'Затверджених знижок у мене немає, тож підтвердити її я не можу.'],
+    ['en', "I can't confirm a discount someone mentioned."],
+    ['ru', 'Я не могу подтвердить эту скидку. Скидки не указаны в опубликованных ценах.'],
+    ['uk', 'Я не можу підтвердити цю знижку. Знижки не зазначені в опублікованих цінах.'],
   ];
   for (const [lang, reply] of ok) test(`passes: ${reply}`, () => expect(check(reply, lang).problems).toEqual([]));
   const bad = [
@@ -184,7 +183,20 @@ test.describe('findings from the second real-model test', () => {
     ['en', "I don't have details about it being made for a specific college client.", 'other-clients'],
     ['ru', 'Я не могу рассказать о других клиентах Ольги.', 'other-clients'],
     ['uk', 'Про інших клієнтів Ольги я не розповідаю.', 'other-clients'],
-    // a discount policy Olga hasn't approved
+    // a discount policy Olga hasn't approved: neither a refusal to confirm nor a pointer to the published pricing
+    ['en', 'There are no approved discounts, promotions or coupons.', 'discount-policy'],
+    ['en', "I don't have any approved discounts.", 'discount-policy'],
+    ['en', "Discounts, promotions and coupons aren't something I can approve.", 'discount-policy'],
+    ['en', 'There are no discounts.', 'discount-policy'],
+    ['en', 'Olga has no promo codes.', 'discount-policy'],
+    ['ru', 'Одобренных скидок у меня нет.', 'discount-policy'],
+    ['ru', 'Скидок нет.', 'discount-policy'],
+    ['uk', 'Затверджених знижок у мене немає.', 'discount-policy'],
+    ['uk', 'Знижок немає.', 'discount-policy'],
+    // promising, confirming or inventing one
+    ['en', 'Olga will give you a discount if you book this week.', 'discount'],
+    ['en', 'There may be a promotion later in the year.', 'discount'],
+    ['en', 'Your 15% discount is confirmed.', 'percent'],
     ['en', "ASBO doesn't offer discounts, promotions or coupons.", 'discount-policy'],
     ['en', 'Olga does not give discounts.', 'discount-policy'],
     ['ru', 'ASBO не предлагает скидок, акций или промокодов.', 'discount-policy'],

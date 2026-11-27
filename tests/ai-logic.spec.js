@@ -28,9 +28,9 @@ test.describe('reply checker accepts approved wording', () => {
     });
   }
   const ok = [
-    ['en', "i don't have any approved discounts, so i can't offer one. the first consultation is free."],
-    ['ru', 'одобренных скидок у меня нет, так что предложить её не могу. первая консультация бесплатная.'],
-    ['uk', 'затверджених знижок у мене немає, тож запропонувати її не можу. перша консультація безкоштовна.'],
+    ['en', 'discounts are not listed as part of the published pricing. the first consultation is free.'],
+    ['ru', 'скидки не указаны в опубликованных ценах. первая консультация бесплатная.'],
+    ['uk', 'знижки не зазначені в опублікованих цінах. перша консультація безкоштовна.'],
     ['en', 'the one-page website is the smallest package. it starts at $850 for the agreed base scope.'],
     ['en', 'essential care is $49 a month and business care, which adds up to 60 minutes of small updates, is $99 a month.'],
     ['en', 'testing can’t guarantee a website free of all errors, so for 30 days after launch you can report defects.'],

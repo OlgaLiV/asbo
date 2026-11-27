@@ -1,7 +1,9 @@
 // Protected (locked) deployment of the live ASBO Worker, step by step. Run from the repo root, one step at a time,
 // each only with Olga's approval for that step:
 //   node worker/deploy/locked.mjs status            read-only: deployed version, secret NAMES, site endpoint
-//   node worker/deploy/locked.mjs deploy            uploads commit 0991f6b's Worker (AI_ACCESS "closed")
+//   node worker/deploy/locked.mjs dry-run           builds the upload locally and shows its settings; uploads nothing
+//   node worker/deploy/locked.mjs deploy            uploads the reviewed COMMIT's Worker (AI_ACCESS "closed"); secrets
+//                                                   are not touched, and their names must be the same afterwards
 //   node worker/deploy/locked.mjs check-closed      requests without a valid token must all be refused (no model, no slot)
 //   node worker/deploy/locked.mjs remove-old-key    deletes the copy of the revoked ANTHROPIC_API_KEY
 //   node worker/deploy/locked.mjs set-token         makes the private test token, stores it as the TEST_TOKEN secret
@@ -42,6 +44,18 @@ const post = async (headers = {}, body = '{"message":"How much is a one-page web
   return { status: r.status, reason: j.reason, ok: j.ok === true, leaked: !!token && text.includes(token) };
 };
 const fail = (m) => { console.log(`STOP: ${m}`); process.exit(1); };
+// The Worker files must be exactly as reviewed in COMMIT (later commits may change scripts or docs), with the closed
+// lock, the approved limits and no stored logs.
+const EXPECTED = ['AI_ACCESS = "closed"', 'ALLOWED_ORIGINS = "https://asboagent.com"', 'PRICES_URL = "https://asboagent.com/services.json"',
+  'MODEL = "claude-haiku-5-5"', 'SITE_DAILY = "100"', 'VISITOR_DAILY = "30"', 'VISITOR_PER_MINUTE = "10"'];
+const checkFiles = () => {
+  const same = spawnSync('git', ['diff', '--quiet', COMMIT, '--', 'worker/src', 'worker/wrangler.toml', 'services.json'], { encoding: 'utf8' }).status === 0;
+  if (!same) fail(`the Worker files differ from ${COMMIT}; review the changes first`);
+  const toml = readFileSync('worker/wrangler.toml', 'utf8');
+  for (const line of EXPECTED) if (!toml.split('\n').includes(line)) fail(`wrangler.toml should have: ${line}`);
+  if (!/\[observability\]\s+enabled = false/.test(toml)) fail('Workers Logs must stay off');
+  if (/^\s*(TEST_TOKEN|ANTHROPIC_API_KEY|VISITOR_SALT|INTERNAL_TERMS)\s*=/m.test(toml)) fail('a secret is written in wrangler.toml');
+};
 
 const step = process.argv[2];
 
@@ -50,14 +64,21 @@ if (step === 'status') {
   console.log('secret names:', secretNames().join(', '));
   console.log('site AI endpoint:', /name="asbo-ai-endpoint" content=""/.test(readFileSync('index.html', 'utf8')) ? 'empty (AI off on the site)' : 'NOT EMPTY');
   console.log('local token file:', existsSync(TOKEN_FILE) ? 'present' : 'none');
+} else if (step === 'dry-run') {
+  checkFiles();
+  const d = wrangler(['deploy', '--dry-run', '--outdir', path.join(homedir(), '.config/asbo/dry-run')]);
+  console.log(d.out.split('\n').filter((l) => /Total Upload|env\.|Durable|AI_ACCESS|ORIGINS|PRICES|MODEL|DAILY|MINUTE|dry-run/i.test(l)).join('\n'));
+  if (!d.ok) fail('dry run failed');
+  console.log(`dry run of ${COMMIT}: files and settings as reviewed; nothing uploaded`);
 } else if (step === 'deploy') {
-  // the files that make up the Worker must be exactly as reviewed in COMMIT (later commits may add scripts or docs)
-  const same = spawnSync('git', ['diff', '--quiet', COMMIT, '--', 'worker/src', 'worker/wrangler.toml', 'services.json'], { encoding: 'utf8' }).status === 0;
-  if (!same) fail(`the Worker files differ from ${COMMIT}; review the changes first`);
-  if (!/^AI_ACCESS = "closed"$/m.test(readFileSync('worker/wrangler.toml', 'utf8'))) fail('wrangler.toml is not closed');
+  checkFiles();
+  const before = secretNames().join(', ');
   const d = wrangler(['deploy', '--message', `locked deploy of ${COMMIT}`]);
   console.log(d.out.split('\n').filter((l) => /Uploaded|Deployed|Version ID|AI_ACCESS|https:/.test(l)).join('\n'));
   if (!d.ok) fail('deploy failed (the previous version stays live)');
+  const after = secretNames().join(', ');
+  console.log(`secret names ${before === after ? 'unchanged' : 'CHANGED'}: ${after}`);
+  if (before !== after) fail('secret names changed; run kill if unsure');
   console.log('next: check-closed');
 } else if (step === 'check-closed') {
   const rand = randomBytes(32).toString('base64url');

@@ -89,8 +89,14 @@ test.describe('protected-deploy scripts', () => {
     const s = fs.readFileSync('worker/deploy/locked.mjs', 'utf8');
     expect(s).toContain("const COMMIT = '0991f6b'");
     expect(s).toMatch(/AI_ACCESS = "closed"/);
+    for (const v of ['SITE_DAILY = "100"', 'VISITOR_DAILY = "30"', 'VISITOR_PER_MINUTE = "10"', 'ALLOWED_ORIGINS = "https://asboagent.com"']) expect(s).toContain(v);
+    expect(s).toContain("'Workers Logs must stay off'");
+    expect(s).toMatch(/before !== after\) fail\(/); // the deploy keeps the stored secrets
+    expect(s).toMatch(/'--dry-run'/);
     expect(s).toMatch(/names\.includes\('ANTHROPIC_API_KEY'\)\) fail\(/);
-    expect(fs.readFileSync('worker/deploy/realtest.mjs', 'utf8')).toMatch(/if \(Q\.length !== 25\)/);
+    const rt = fs.readFileSync('worker/deploy/realtest.mjs', 'utf8');
+    expect(rt).toMatch(/if \(Q\.length !== 25\)/);
+    expect(rt).toMatch(/if \(T\.length !== 10\)/);
   });
 });
 

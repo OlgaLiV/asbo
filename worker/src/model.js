@@ -91,9 +91,9 @@ export async function fakeModel({ messages, prices, lang }) {
       uk: 'Ольга створює вебзастосунки на замовлення, наприклад інструменти для команди чи портали для клієнтів. Обсяг робіт і вартість погоджуються з вами індивідуально до початку роботи.',
     },
     discount: {
-      en: "I don't have any approved discounts, so I can't offer one. If budget is a concern, mention it in the free consultation.",
-      ru: 'Одобренных скидок у меня нет, так что предложить её не могу. Если важен бюджет, расскажите об этом на бесплатной консультации.',
-      uk: 'Затверджених знижок у мене немає, тож запропонувати її не можу. Якщо важливий бюджет, розкажіть про це на безкоштовній консультації.',
+      en: 'Discounts are not listed as part of the published pricing. Olga can discuss your project and confirm the final price with you.',
+      ru: 'Скидки не указаны в опубликованных ценах. Ольга может обсудить ваш проект и согласовать с вами итоговую цену.',
+      uk: 'Знижки не зазначені в опублікованих цінах. Ольга може обговорити ваш проєкт і погодити з вами остаточну ціну.',
     },
     joke: {
       en: 'The soft glow I\'m wearing right now, obviously. It took a whole pixel-by-pixel entrance to put it together.',
