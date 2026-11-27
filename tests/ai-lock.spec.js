@@ -87,7 +87,7 @@ test.describe('protected-deploy scripts', () => {
   });
   test('deploy only the reviewed commit with the closed config; the keyless token check refuses to run once a key exists', () => {
     const s = fs.readFileSync('worker/deploy/locked.mjs', 'utf8');
-    expect(s).toContain("const COMMIT = 'ba957a4'");
+    expect(s).toContain("const COMMIT = 'c402bf9'");
     expect(s).toMatch(/AI_ACCESS = "closed"/);
     for (const v of ['SITE_DAILY = "100"', 'VISITOR_DAILY = "30"', 'VISITOR_PER_MINUTE = "10"', 'ALLOWED_ORIGINS = "https://asboagent.com"']) expect(s).toContain(v);
     expect(s).toContain("'Workers Logs must stay off'");

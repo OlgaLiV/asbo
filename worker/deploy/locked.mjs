@@ -19,7 +19,7 @@ import { homedir } from 'node:os';
 import path from 'node:path';
 
 const NAME = 'asbo-chat';
-const COMMIT = 'ba957a4';
+const COMMIT = 'c402bf9';
 const URL_CHAT = 'https://asbo-chat.asboagent.workers.dev/chat';
 const ORIGIN = 'https://asboagent.com';
 const TOKEN_FILE = path.join(homedir(), '.config/asbo/asbo-test-token');
