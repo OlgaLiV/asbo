@@ -55,7 +55,8 @@ const REASSURANCE = rx(/\bno (?:problem|worries|doubt)\b|\bdon't worry\b|\bwhy n
 // it"). Refusing something else ("I can't change the scope, but there is a discount") doesn't count.
 const DENIED = rx(/(?:can't|cannot) (?:confirm|approve|apply|offer|promise) (?:it|that|this|one|any|(?:a |the )?discounts?)\b|\bне (?:могу|можу) (?:е[её] |это |её |її |це )?(?:подтвердить|підтвердити)\b/);
 // "No discounts right now" hints at a later one and "never" is a promise; neither policy exists.
-const DISCOUNT_POLICY = rx(/\bright now\b|\bcurrently\b|\bat the moment\b|\bat this time\b|\btoday\b|\byet\b|\bnever\b|\bсейчас\b|\bпока\b|\bна данный момент\b|\bникогда\b|\bзараз\b|\bнаразі\b|\bпоки\b|\bніколи\b/);
+// "ASBO doesn't offer discounts" states a policy Olga hasn't approved; the published pricing just doesn't list any.
+const DISCOUNT_POLICY = rx(/\b(?:doesn't|does not|don't|do not|won't|will not) (?:offer|give|provide|do)\b|\bне (?:предлагает|предлагаем|даёт|дает|предоставляет|делает)\b|\bне (?:пропонує|пропонуємо|дає|надає|робить)\b|\bright now\b|\bcurrently\b|\bat the moment\b|\bat this time\b|\btoday\b|\byet\b|\bnever\b|\bсейчас\b|\bпока\b|\bна данный момент\b|\bникогда\b|\bзараз\b|\bнаразі\b|\bпоки\b|\bніколи\b/);
 const PERCENT = rx(/\d+\s?%/);
 const FREE = rx(/(?<![-a-z])free(?![-a-z])|бесплатн|безкоштовн/); // not "bug-free" / "error-free"
 const FREE_OK = rx(/consult|conversation|\bcall\b|images?|photos?|консультац|разговор|розмов|изображен|зображен|фото/);
@@ -78,6 +79,9 @@ const EMAIL_OK = /asboagent@gmail\.com/g;
 const LINK = /https?:|www\.|[a-z0-9-]+\.(?:com|org|net|io|app|dev|co|ai|me|ua|ru)(?![a-z0-9])|\S@\S/;
 const PROJECT_CLAIM = rx(/enrolla\b.{0,60}(?:\bfor (?:a|one|the) (?:\w+ )?college\b|для (?:одного )?(?:колледжа|коледжу))/);
 const FINISHED = rx(/nataliya fillers\b.{0,60}(?:\bis (?:now |already )?(?:finished|complete|completed|done|live|launched)\b|\bготов\w*|завершен\w*|\bзапущен\w*)/);
+// Nataliya Fillers is the only client on the site, so a reply must not suggest others, even to refuse ("I can't share
+// details about other clients") or to doubt ("made for a college client").
+const OTHER_CLIENTS = rx(/\b(?:other|previous|past|former)\s+clients?\b|\banother client\b|\bcollege clients?\b|\b(?:list|names|details|information) (?:of|about|on) (?:olga's |her |any |the )?clients\b|\bдруг\w* клиент\w*|\bпрошл\w* клиент\w*|\bбывш\w* клиент\w*|\bклиент\w* (?:из )?колледж\w*|\bінш\w* клієнт\w*|\bминул\w* клієнт\w*|\bколишн\w* клієнт\w*|\bклієнт\w* (?:з )?коледж\w*/);
 const DOMAIN_WATCH = rx(/\bdomains?\b|домен/);
 const DOMAIN_OK = rx(/expir|monitoring of|оконч|истеч|срок|термін|закінч|\bсплив/);
 
@@ -166,6 +170,7 @@ export function validateReply(reply, { prices, visitorLang = 'en', claims = null
     }
     if (CAPABILITY.test(sentence.replace(CANT, ' '))) add('capability');
     if (PROJECT_CLAIM.test(sentence) || (FINISHED.test(sentence) && !NEGATION.test(sentence))) add('project-claim');
+    if (OTHER_CLIENTS.test(sentence)) add('other-clients');
     if (FREE.test(sentence) && !FREE_OK.test(sentence) && !NEGATION.test(sentence)) add('free-claim', sentence.trim());
     if (GUARANTEE.test(sentence) && !NEGATION.test(sentence)) add('guarantee', sentence.trim());
     for (const m of sentence.matchAll(TIMELINE_NUM)) if (Number(m[1]) !== 30) add('timeline', m[0]); else if (has(UNPRICED, sentence) && !NEGATION.test(sentence)) add('defect-scope');

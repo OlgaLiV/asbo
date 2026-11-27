@@ -173,3 +173,40 @@ test('usd() formats like the Services panel without loading locale data', () => 
 test('the checker avoids whole-Unicode letter classes, which made each rule slow to compile', () => {
   expect(fs.readFileSync('worker/src/validate.js', 'utf8').replace(/^\s*\/\/.*$/gm, '')).not.toMatch(/\\p\{/);
 });
+
+// Findings from the second real-model test (2026-11-27): a reply suggested Olga has other clients, and two discount
+// replies fell back because the model said "currently" or similar. Olga hasn't approved a fixed "no discounts" policy, so
+// the model is given the published-pricing wording instead, and a policy stated as ASBO's own is rejected.
+test.describe('findings from the second real-model test', () => {
+  const bad = [
+    ['en', "Olga's other projects are her own work, and I can't share details about other clients.", 'other-clients'],
+    ['en', "I can't talk about Olga's previous clients.", 'other-clients'],
+    ['en', "I don't have details about it being made for a specific college client.", 'other-clients'],
+    ['ru', 'Я не могу рассказать о других клиентах Ольги.', 'other-clients'],
+    ['uk', 'Про інших клієнтів Ольги я не розповідаю.', 'other-clients'],
+    // a discount policy Olga hasn't approved
+    ['en', "ASBO doesn't offer discounts, promotions or coupons.", 'discount-policy'],
+    ['en', 'Olga does not give discounts.', 'discount-policy'],
+    ['ru', 'ASBO не предлагает скидок, акций или промокодов.', 'discount-policy'],
+    ['uk', 'ASBO не пропонує знижок, акцій чи промокодів.', 'discount-policy'],
+  ];
+  for (const [lang, reply, code] of bad) test(`${code}: ${reply}`, () => expect(codes(check(reply, lang))).toContain(code));
+  const ok = [
+    ['en', "The other projects on the site, like Enrolla, are Olga's own work and demos."],
+    ['en', "Enrolla is one of Olga's own projects, with a live demo on the site."],
+    ['en', 'Nataliya Fillers is the first client website Olga is building, and it is in progress.'],
+    ['en', 'Clients talk to Olga directly from the first conversation to launch.'],
+    ['en', 'If you are an existing client, your project terms are whatever you agreed with Olga.'],
+    // the discount answer: what the published pricing says, without a policy of ASBO's own
+    ['en', 'Discounts are not listed as part of the published pricing. Olga can discuss your project and confirm the final price with you.'],
+    ['ru', 'Скидки не указаны в опубликованных ценах. Ольга может обсудить ваш проект и согласовать с вами итоговую цену.'],
+    ['uk', 'Знижки не зазначені в опублікованих цінах. Ольга може обговорити ваш проєкт і погодити з вами остаточну ціну.'],
+  ];
+  for (const [lang, reply] of ok) test(`passes: ${reply}`, () => expect(check(reply, lang).problems).toEqual([]));
+  const system = buildSystem(fs.readFileSync('worker/src/knowledge.md', 'utf8'), prices).replace(/\s+/g, ' ');
+  test('instructions give the published-pricing discount answer, not a policy', () => {
+    expect(system).toContain('Discounts are not listed as part of the published pricing. Olga can discuss your project and confirm the final price with you.');
+    expect(system).not.toMatch(/Answer with this sentence[^.]*"ASBO doesn't offer/);
+  });
+  test('instructions say never to mention other clients', () => expect(system).toMatch(/never mention other clients/i));
+});

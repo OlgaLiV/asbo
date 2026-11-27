@@ -71,6 +71,29 @@ test.describe('temporary CPU-test Worker', () => {
   });
 });
 
+test.describe('protected-deploy scripts', () => {
+  test.beforeEach(({}, info) => once(info));
+  const files = ['worker/deploy/locked.mjs', 'worker/deploy/realtest.mjs'];
+  test('keep the token outside the repo and send it only in the header or to wrangler on stdin', () => {
+    for (const f of files) {
+      const s = fs.readFileSync(f, 'utf8');
+      expect(s, f).toContain("path.join(homedir(), '.config/asbo/asbo-test-token')");
+      expect(s, f).not.toMatch(/\?[^'"`]*\$\{token\}/); // never in an address
+      expect(s, f).not.toMatch(/\[[^\]]*'secret', 'put'[^\]]*\$\{?t(oken)?\}?[^\]]*\]/); // never on a command line
+      expect(s, f).not.toMatch(/console\.log\([^)]*\$\{token\}/);
+      expect(s, f).not.toMatch(/sk-ant-/);
+    }
+    expect(fs.readFileSync('worker/deploy/locked.mjs', 'utf8')).toContain("input: t, env");
+  });
+  test('deploy only the reviewed commit with the closed config; the keyless token check refuses to run once a key exists', () => {
+    const s = fs.readFileSync('worker/deploy/locked.mjs', 'utf8');
+    expect(s).toContain("const COMMIT = '0991f6b'");
+    expect(s).toMatch(/AI_ACCESS = "closed"/);
+    expect(s).toMatch(/names\.includes\('ANTHROPIC_API_KEY'\)\) fail\(/);
+    expect(fs.readFileSync('worker/deploy/realtest.mjs', 'utf8')).toMatch(/if \(Q\.length !== 25\)/);
+  });
+});
+
 test.describe('locked Worker over HTTP', () => {
   test.describe.configure({ mode: 'serial' });
   test.beforeEach(async ({ request }, info) => { once(info); await request.post(`${W}/__test/reset`); });
