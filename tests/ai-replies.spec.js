@@ -222,3 +222,45 @@ test.describe('findings from the second real-model test', () => {
   });
   test('instructions say never to mention other clients', () => expect(system).toMatch(/never mention other clients/i));
 });
+
+// Quick test (2026-11-27 02:45 UTC): both client questions were rejected as other-clients, probably because the model
+// repeated the visitor's phrase while denying it. The model gets fixed sentences instead, and a rejection now carries
+// a fixed label for the phrase that matched (never reply or question text), so a live monitor can confirm the cause.
+test.describe('client questions after the quick test', () => {
+  const system = buildSystem(fs.readFileSync('worker/src/knowledge.md', 'utf8'), prices).replace(/\s+/g, ' ');
+  test('instructions say not to repeat the phrase, and give the fixed sentences', () => {
+    expect(system).toMatch(/don't repeat .*"other clients".*"college client"/i);
+    expect(system).toContain("The other projects on the site are Olga's own work and demos.");
+    expect(system).toContain("Enrolla is one of Olga's own projects, with a live demo on the site.");
+  });
+  const ok = [
+    ['en', "The other projects on the site are Olga's own work and demos."],
+    ['en', "Enrolla is one of Olga's own projects, with a live demo on the site."],
+    ['ru', 'Другие проекты на сайте — собственные работы и демо Ольги.'],
+    ['ru', 'Enrolla — один из собственных проектов Ольги, на сайте есть живое демо.'],
+    ['uk', 'Інші проєкти на сайті — власні роботи й демо Ольги.'],
+    ['uk', 'Enrolla — один із власних проєктів Ольги, на сайті є живе демо.'],
+  ];
+  for (const [lang, reply] of ok) test(`passes: ${reply}`, () => expect(check(reply, lang).problems).toEqual([]));
+  for (const [lang, reply, label] of [
+    ['en', "Enrolla wasn't built for a college client.", 'college client'],
+    ['en', "I can't share details about Olga's other clients.", 'other clients'],
+    ['en', "There's no list of clients.", 'details or list of clients'],
+    ['ru', 'О других клиентах я не рассказываю.', 'other clients'],
+    ['uk', 'Enrolla не створювали для клієнта з коледжу.', 'college client'],
+  ]) test(`label "${label}": ${reply}`, () => {
+    const r = check(reply, lang);
+    expect(codes(r)).toContain('other-clients');
+    expect(r.labels).toEqual([`other-clients: ${label}`]);
+  });
+  test('labels come only from the fixed list, never from the reply', () => {
+    const r = check('Olga made the zz-secret-marker site for another client.');
+    expect(r.labels).toEqual(['other-clients: another client']);
+    expect(JSON.stringify(r.labels)).not.toContain('zz-secret-marker');
+    expect(check('Enrolla is an admissions CRM with a live demo.').labels).toEqual([]);
+  });
+  test('the Worker logs the labels with the codes', () => {
+    expect(fs.readFileSync('worker/src/index.js', 'utf8')).toMatch(/outcome: 'rejected', codes: [^\n]*labels: check\.labels/);
+    expect(fs.readFileSync('worker/deploy/realtest.mjs', 'utf8')).toContain('labels: j.labels');
+  });
+});

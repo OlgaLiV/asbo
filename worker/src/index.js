@@ -118,7 +118,7 @@ export default {
     const internalTerms = (env.INTERNAL_TERMS || '').split(',').map((w) => w.trim()).filter(Boolean);
     const check = validateReply(out.reply, { prices, visitorLang: lang, claims: out.prices_mentioned, internalTerms });
     if (!check.ok || !ACTIONS.includes(out.action)) {
-      log({ outcome: 'rejected', codes: check.problems.map((p) => p.split(':')[0]), site: slot.site });
+      log({ outcome: 'rejected', codes: check.problems.map((p) => p.split(':')[0]), labels: check.labels, site: slot.site });
       return json({ fallback: true, reason: 'validation', lang, fallbackIntent: check.priceRelated ? 'prices' : null }, 200, cors.headers);
     }
     log({ outcome: 'ok', site: slot.site, tokens: out.usage ? { in: out.usage.input_tokens, out: out.usage.output_tokens, cached: out.usage.cache_read_input_tokens } : undefined });

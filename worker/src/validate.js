@@ -84,7 +84,13 @@ const PROJECT_CLAIM = rx(/enrolla\b.{0,60}(?:\bfor (?:a|one|the) (?:\w+ )?colleg
 const FINISHED = rx(/nataliya fillers\b.{0,60}(?:\bis (?:now |already )?(?:finished|complete|completed|done|live|launched)\b|\bготов\w*|завершен\w*|\bзапущен\w*)/);
 // Nataliya Fillers is the only client on the site, so a reply must not suggest others, even to refuse ("I can't share
 // details about other clients") or to doubt ("made for a college client").
-const OTHER_CLIENTS = rx(/\b(?:other|previous|past|former)\s+clients?\b|\banother client\b|\bcollege clients?\b|\b(?:list|names|details|information) (?:of|about|on) (?:olga's |her |any |the )?clients\b|\bдруг\w* клиент\w*|\bпрошл\w* клиент\w*|\bбывш\w* клиент\w*|\bклиент\w* (?:из )?колледж\w*|\bінш\w* клієнт\w*|\bминул\w* клієнт\w*|\bколишн\w* клієнт\w*|\bклієнт\w* (?:з )?коледж\w*/);
+// Each phrase has a fixed label, logged on rejection instead of any reply text, so a live monitor shows which matched.
+const OTHER_CLIENTS = [
+  ['other clients', rx(/\b(?:other|previous|past|former)\s+clients?\b|\bдруг\w* клиент\w*|\bпрошл\w* клиент\w*|\bбывш\w* клиент\w*|\bінш\w* клієнт\w*|\bминул\w* клієнт\w*|\bколишн\w* клієнт\w*/)],
+  ['another client', rx(/\banother client\b/)],
+  ['college client', rx(/\bcollege clients?\b|\bклиент\w* (?:из )?колледж\w*|\bклієнт\w* (?:з )?коледж\w*/)],
+  ['details or list of clients', rx(/\b(?:list|names|details|information) (?:of|about|on) (?:olga's |her |any |the )?clients\b/)],
+];
 const DOMAIN_WATCH = rx(/\bdomains?\b|домен/);
 const DOMAIN_OK = rx(/expir|monitoring of|оконч|истеч|срок|термін|закінч|\bсплив/);
 
@@ -148,7 +154,8 @@ export function warmUp(prices) {
 export function validateReply(reply, { prices, visitorLang = 'en', claims = null, internalTerms = [] } = {}) {
   const problems = [];
   const add = (code, detail = '') => problems.push(detail ? `${code}: ${detail}` : code);
-  if (typeof reply !== 'string' || !reply.trim()) return { ok: false, problems: ['empty'], priceRelated: false };
+  const labels = []; // fixed strings only, safe to log
+  if (typeof reply !== 'string' || !reply.trim()) return { ok: false, problems: ['empty'], priceRelated: false, labels };
   if (reply.length > 1500) add('too-long');
   const t = lower(reply);
   const byAmount = new Map(Object.entries(prices).map(([k, p]) => [p.amount, k]));
@@ -173,7 +180,7 @@ export function validateReply(reply, { prices, visitorLang = 'en', claims = null
     }
     if (CAPABILITY.test(sentence.replace(CANT, ' '))) add('capability');
     if (PROJECT_CLAIM.test(sentence) || (FINISHED.test(sentence) && !NEGATION.test(sentence))) add('project-claim');
-    if (OTHER_CLIENTS.test(sentence)) add('other-clients');
+    for (const [label, re] of OTHER_CLIENTS) if (re.test(sentence)) { add('other-clients'); labels.push(`other-clients: ${label}`); break; }
     if (FREE.test(sentence) && !FREE_OK.test(sentence) && !NEGATION.test(sentence)) add('free-claim', sentence.trim());
     if (GUARANTEE.test(sentence) && !NEGATION.test(sentence)) add('guarantee', sentence.trim());
     for (const m of sentence.matchAll(TIMELINE_NUM)) if (Number(m[1]) !== 30) add('timeline', m[0]); else if (has(UNPRICED, sentence) && !NEGATION.test(sentence)) add('defect-scope');
@@ -232,5 +239,5 @@ export function validateReply(reply, { prices, visitorLang = 'en', claims = null
   }
 
   const priceRelated = problems.some((p) => /amount|service|starting|fixed|monthly|currency|words|percent|discount|free|claim|unpublished/.test(p.split(':')[0]));
-  return { ok: problems.length === 0, problems, priceRelated };
+  return { ok: problems.length === 0, problems, priceRelated, labels };
 }

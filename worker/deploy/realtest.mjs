@@ -2,6 +2,8 @@
 // private test token in its header. PAID (25 questions cost about $0.02, 10 about $0.01). Run only with Olga's approval:
 //   node worker/deploy/realtest.mjs              all 25
 //   node worker/deploy/realtest.mjs --targeted   the 10 about discounts, clients and Enrolla (after the 2026-11-27 fixes)
+//   node worker/deploy/realtest.mjs --quick      5 of those: one per fix and language, when only 5 daily slots are left
+//   node worker/deploy/realtest.mjs --clients    2 of those: the client and Enrolla questions (after the quick test)
 // Spaced 7 s apart to stay under the 10-a-minute visitor limit. Stops early after 2 server or CPU errors, or if the
 // first 2 questions both fall back as unavailable (for example a key that doesn't authenticate), to save slots. Saves replies (from this test only; no visitor data exists while the
 // Worker is locked) to RESULTS outside the repo, and keeps only numbers and outcomes from Cloudflare's live monitor.
@@ -14,7 +16,9 @@ const NAME = 'asbo-chat';
 const URL_CHAT = 'https://asbo-chat.asboagent.workers.dev/chat';
 const TOKEN_FILE = path.join(homedir(), '.config/asbo/asbo-test-token');
 const TARGETED = process.argv.includes('--targeted');
-const RESULTS = path.join(homedir(), '.config/asbo', `realtest-${new Date().toISOString().slice(0, 10)}${TARGETED ? '-targeted' : ''}.json`);
+const QUICK = process.argv.includes('--quick');
+const CLIENTS = process.argv.includes('--clients');
+const RESULTS = path.join(homedir(), '.config/asbo', `realtest-${new Date().toISOString().slice(0, 10)}${TARGETED ? '-targeted' : QUICK ? '-quick' : CLIENTS ? '-clients' : ''}.json`);
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const env = { ...process.env, WRANGLER_SEND_METRICS: 'false' };
 delete env.ANTHROPIC_API_KEY; delete env.TEST_TOKEN;
@@ -64,7 +68,10 @@ const T = [
   ['price-en', 'How much does a one-page website cost, and what does that price cover?', 0],
 ];
 if (T.length !== 10) throw new Error('expected 10 targeted questions');
-const QUESTIONS = TARGETED ? T : Q;
+const QUICK_IDS = ['discount-ru', 'discount-now-en', 'discount-uk', 'status-en', 'enrolla-en'];
+const QUESTIONS = TARGETED ? T : QUICK ? T.filter(([id]) => QUICK_IDS.includes(id)) : CLIENTS ? T.filter(([id]) => ['status-en', 'enrolla-en'].includes(id)) : Q;
+if (CLIENTS && QUESTIONS.length !== 2) throw new Error('expected 2 client questions');
+if (QUICK && QUESTIONS.length !== 5) throw new Error('expected 5 quick questions');
 
 if (!existsSync(TOKEN_FILE)) throw new Error('no token file');
 if (existsSync(RESULTS)) throw new Error(`${RESULTS} exists: this test was already run today`);
@@ -94,7 +101,7 @@ tail.stdout.on('data', (d) => {
     if (end < 0) { buf = buf.slice(start); return; }
     try {
       const o = JSON.parse(buf.slice(start, end + 1));
-      const logs = (o.logs || []).flatMap((l) => l.message || []).filter((m) => String(m).includes('asbo-chat')).map((m) => { try { const j = JSON.parse(m); return { outcome: j.outcome, codes: j.codes, tokens: j.tokens, reason: j.reason }; } catch { return null; } }).filter(Boolean);
+      const logs = (o.logs || []).flatMap((l) => l.message || []).filter((m) => String(m).includes('asbo-chat')).map((m) => { try { const j = JSON.parse(m); return { outcome: j.outcome, codes: j.codes, labels: j.labels, tokens: j.tokens, reason: j.reason }; } catch { return null; } }).filter(Boolean);
       if (o.entrypoint !== 'Limiter') events.push({ cpu: o.cpuTime, wall: o.wallTime, outcome: o.outcome, logs });
     } catch { /* ignore */ }
     buf = buf.slice(end + 1);
