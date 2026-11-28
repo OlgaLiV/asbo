@@ -134,7 +134,11 @@ npm test            # all suites; Playwright starts the site and two local Worke
    and that `PRICES_URL` is `https://asboagent.com/services.json`.
 9. **Real-model test run** (small and paid, needs Olga's approval): run the test questions against the deployed
    Worker, then read the replies and the rejection rate.
-10. **Turn ASBO on:** put `https://asbo-chat.<account>.workers.dev/chat` in the `asbo-ai-endpoint` meta tag, publish
-    through the normal tested deploy, and run the iPhone check.
+10. **Turn ASBO on** (the launch commit sets `AI_ACCESS = "open"` and the `asbo-ai-endpoint` meta tag to
+    `https://asbo-chat.asboagent.workers.dev/chat`), each step with Olga's approval:
+    `node worker/deploy/locked.mjs open` (deploys LAUNCH_COMMIT, deletes TEST_TOKEN), then `check-open` (free), then push
+    to `main` (tests, deploy, live smoke), then one real question on the site and the iPhone check.
+    **Rollback:** `locked.mjs kill` (deletes the key: prewritten answers at once), or `locked.mjs close`, or revert the
+    launch commit's `index.html` line and push. Local tests never reach the live Worker (`tests/helpers.js`).
 11. **Privacy notice:** in `index.html` (`data-privacy-notice`), shown only when AI is on. Before step 10, re-check its
    claims: Worker logs, traces and issues off; Console data controls at 30 days, user feedback off.

@@ -9,7 +9,7 @@ compatibility_flags = ["nodejs_compat"]
 
 [vars]
 # "closed": only requests with the private test token (secret TEST_TOKEN) are answered. Going live sets this to "open".
-AI_ACCESS = "closed"
+AI_ACCESS = "open"
 ALLOWED_ORIGINS = "https://asboagent.com"
 PRICES_URL = "https://asboagent.com/services.json"
 MODEL = "claude-haiku-5-5"

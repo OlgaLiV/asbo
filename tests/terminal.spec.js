@@ -68,10 +68,11 @@ test('scrolling the conversation does not scroll the page behind it', async ({ p
   expect(await page.evaluate(() => scrollY)).toBe(before);
 });
 
+// Commands only: on the live site a free-text question would be a paid AI call on every release.
 test('@smoke slash commands still work', async ({ page }) => {
   await gotoReady(page);
   await openTerminal(page);
-  await ask(page, 'hello');
+  expect(await ask(page, '/prices')).toContain('$');
   await page.locator('#q').fill('/clear');
   await page.locator('#q').press('Enter');
   await expect(page.locator('.term-log .a')).toHaveCount(0);

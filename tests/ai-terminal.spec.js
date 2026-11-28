@@ -1,5 +1,5 @@
 // The ASBO terminal with the AI switched on, against the local Worker and its fake model (no paid calls).
-// Runs on desktop and both phone projects. Skipped against the deployed site, where AI is off.
+// Runs on desktop and both phone projects, locally only (the deployed site is checked by the @smoke tests).
 import { test, expect } from '@playwright/test';
 import { gotoReady, panel, ask } from './helpers.js';
 
@@ -117,7 +117,7 @@ test('commands stay local and never call the AI', async ({ page }) => {
   expect(calls).toHaveLength(0);
 });
 
-test('with no endpoint configured (as on the live site today), no AI request is made', async ({ page }) => {
+test('with AI switched off (no endpoint, as after a rollback), no AI request is made', async ({ page }) => {
   const calls = await start(page, { ai: false });
   expect(await ask(page, 'how much is a website?')).toContain('Websites start at $850');
   expect(calls).toHaveLength(0);

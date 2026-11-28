@@ -1,19 +1,36 @@
 // The AI privacy notice: absent while AI is off (as on the live site), reachable and readable when AI is on.
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
-import { gotoReady, panel, ask, trackErrors } from './helpers.js';
+import { gotoReady, panel, ask, trackErrors, LIVE_WORKER } from './helpers.js';
 
 const openTerminal = async (page) => {
   await page.locator('[data-open="terminal"]').first().click();
   await expect(panel(page, 'terminal')).toBeVisible();
 };
 
-test('with AI off there is no privacy line or panel @smoke', async ({ page }) => {
+test('with AI off (as after a rollback) there is no privacy line or panel', async ({ page }) => {
+  test.skip(!!process.env.BASE_URL, 'local only');
   await gotoReady(page);
-  test.skip(!!(await page.locator('meta[name="asbo-ai-endpoint"]').getAttribute('content')), 'AI is on');
   await openTerminal(page);
   await expect(page.locator('.ai-note')).toHaveCount(0);
   await expect(panel(page, 'privacy')).toHaveCount(0);
+});
+
+// Runs on the live site after every release too. Asks no question, so it makes no paid call.
+test('@smoke AI is on: the site points at the ASBO Worker and the Privacy line opens the notice', async ({ page }) => {
+  const workerCalls = [];
+  page.on('request', (r) => { if (r.url().startsWith(LIVE_WORKER)) workerCalls.push(r.method()); });
+  if (!process.env.BASE_URL) await page.addInitScript((u) => { window.ASBO_AI_ENDPOINT = u; }, LIVE_WORKER); // blocked locally
+  await gotoReady(page);
+  expect(await page.locator('meta[name="asbo-ai-endpoint"]').getAttribute('content')).toBe(LIVE_WORKER);
+  await openTerminal(page);
+  await expect(page.locator('.ai-note')).toHaveText('AI answers · Privacy');
+  await page.locator('.ai-note button').click();
+  await expect(panel(page, 'privacy')).toBeVisible();
+  await expect(panel(page, 'privacy').locator('.priv[data-priv="en"] h2')).toHaveText('How ASBO answers');
+  await panel(page, 'privacy').locator('.close').click();
+  await expect(panel(page, 'terminal')).toBeVisible();
+  expect(workerCalls).toEqual([]);
 });
 
 test.describe('AI on', () => {

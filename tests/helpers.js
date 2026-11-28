@@ -19,8 +19,15 @@ export function trackErrors(page) {
 
 // Opens the site and waits until the robot is shown and Services content has loaded.
 // By default reduced motion is emulated, which skips the ~7 s entrance; pass { motion: true } to run it.
+export const LIVE_WORKER = 'https://asbo-chat.asboagent.workers.dev/chat';
 export async function gotoReady(page, { motion = false } = {}) {
   if (!motion) await page.emulateMedia({ reducedMotion: 'reduce' });
+  // Local runs never reach the live Worker (no paid calls, no live limits). The site's own endpoint is switched off
+  // unless a test sets its own (the local fake-model Worker); the deployed site is tested as it is.
+  if (!process.env.BASE_URL) {
+    await page.route(`${LIVE_WORKER}*`, (route) => route.abort('blockedbyclient'));
+    await page.addInitScript(() => { if (window.ASBO_AI_ENDPOINT === undefined) window.ASBO_AI_ENDPOINT = ''; });
+  }
   await page.goto('./');
   await page.waitForFunction(
     () => document.documentElement.classList.contains('robot-in')

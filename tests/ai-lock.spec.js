@@ -40,14 +40,16 @@ test.describe('lock rules', () => {
     // not sent over HTTP: addresses end up in logs, which is why only the header counts
     expect(await accessAllowed(new Request(`https://w/chat?x-asbo-test-token=${good}`), { AI_ACCESS: 'closed', TEST_TOKEN: good })).toBe(false);
   });
-  test('production is closed in the config, and no token is written in the repo or the site', () => {
+  test('launch config: open to asboagent.com only, the site points at the Worker, and no token is written anywhere', () => {
     const toml = fs.readFileSync('worker/wrangler.toml', 'utf8');
-    expect(toml).toMatch(/^AI_ACCESS = "closed"$/m);
+    expect(toml).toMatch(/^AI_ACCESS = "open"$/m);
+    expect(toml).toMatch(/^ALLOWED_ORIGINS = "https:\/\/asboagent\.com"$/m);
+    expect(toml).toMatch(/\[observability\]\s+enabled = false/);
     expect(toml).not.toMatch(/^\s*TEST_TOKEN\s*=/m);
     for (const f of ['index.html', 'asbo.js', 'asbo-intents.js', 'services.js', 'services.json']) {
       expect(fs.readFileSync(f, 'utf8'), f).not.toMatch(/x-asbo-test-token|TEST_TOKEN/i);
     }
-    expect(fs.readFileSync('index.html', 'utf8')).toMatch(/name="asbo-ai-endpoint" content=""/);
+    expect(fs.readFileSync('index.html', 'utf8')).toContain('name="asbo-ai-endpoint" content="https://asbo-chat.asboagent.workers.dev/chat"');
   });
 });
 
@@ -60,7 +62,8 @@ test.describe('temporary CPU-test Worker', () => {
     expect(toml).toMatch(/\[observability\]\s+enabled = false/);
     expect(toml).not.toMatch(/ANTHROPIC|TEST_TOKEN|DEV_MODE|FAKE_MODEL|durable_objects|routes|asboagent\.com"\]/);
     expect(fs.readFileSync('worker/wrangler.toml', 'utf8')).not.toMatch(/cputest/);
-    for (const f of ['index.html', 'asbo.js']) expect(fs.readFileSync(f, 'utf8')).not.toMatch(/cputest|asboagent\.workers\.dev/);
+    for (const f of ['index.html', 'asbo.js']) expect(fs.readFileSync(f, 'utf8')).not.toMatch(/cputest/);
+    expect(fs.readFileSync('index.html', 'utf8').match(/[\w.-]+\.workers\.dev[^"]*/g)).toEqual(['asbo-chat.asboagent.workers.dev/chat']);
   });
   test('its canned replies pass or fail the checker as marked', () => {
     const prices = parsePrices(JSON.parse(fs.readFileSync('services.json', 'utf8')));
@@ -88,12 +91,19 @@ test.describe('protected-deploy scripts', () => {
   test('deploy only the reviewed commit with the closed config; the keyless token check refuses to run once a key exists', () => {
     const s = fs.readFileSync('worker/deploy/locked.mjs', 'utf8');
     expect(s).toContain("const COMMIT = 'c402bf9'");
-    expect(s).toMatch(/AI_ACCESS = "closed"/);
+    expect(s).toContain("const checkFiles = (commit = COMMIT, access = 'closed')");
     for (const v of ['SITE_DAILY = "100"', 'VISITOR_DAILY = "30"', 'VISITOR_PER_MINUTE = "10"', 'ALLOWED_ORIGINS = "https://asboagent.com"']) expect(s).toContain(v);
     expect(s).toContain("'Workers Logs must stay off'");
     expect(s).toMatch(/before !== after\) fail\(/); // the deploy keeps the stored secrets
     expect(s).toMatch(/'--dry-run'/);
     expect(s).toMatch(/names\.includes\('ANTHROPIC_API_KEY'\)\) fail\(/);
+    // going live: the reviewed launch commit, open only through `open`, test token removed, a free check and a rollback
+    expect(s).toMatch(/const LAUNCH_COMMIT = '(LAUNCH|[0-9a-f]{7})'/); // LAUNCH until the launch commit exists
+    expect(s).toContain("checkFiles(LAUNCH_COMMIT, 'open')");
+    expect(s).toContain("'secret', 'delete', 'TEST_TOKEN'");
+    expect(s).toContain("rmSync(TOKEN_FILE)");
+    expect(s).toContain("['deploy', '--var', 'AI_ACCESS:closed'");
+    expect(s).toContain("'{\"message\":\"\"}'"); // check-open sends only empty questions: no model call
     const rt = fs.readFileSync('worker/deploy/realtest.mjs', 'utf8');
     expect(rt).toMatch(/if \(Q\.length !== 25\)/);
     expect(rt).toMatch(/if \(T\.length !== 10\)/);
