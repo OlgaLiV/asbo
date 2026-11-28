@@ -500,19 +500,28 @@ $$('.overlay').forEach((o) => o.addEventListener('click', (e) => { if (e.target 
 const touch = matchMedia('(hover: none) and (pointer: coarse)');
 $$('[data-q]').forEach((b) => b.addEventListener('click', () => { open('terminal', { typing: !touch.matches }); ask(b.dataset.q); }));
 
-// Phones: the fixed nav slides up out of the way while the visitor scrolls down (so it never sits on the robot)
-// and comes back as soon as they scroll up, reach the top, or tab into it.
+// Phones: the fixed nav follows the page position, not the scroll direction, so fast swipes, momentum and Safari's
+// bounce can't bring it back over the robot. It slides away once the page is past the top area and returns only near
+// the top, where the robot's head is clear of it. The gap between the two lines stops it flickering at the edge.
+// Tabbing into it always shows it.
 const nav = $('.pillnav');
 const phone = matchMedia('(max-width: 860px)');
-let navY = window.scrollY;
+const NAV_HIDE_BELOW = 48, NAV_SHOW_ABOVE = 24; // px scrolled
+const keyboardInNav = () => nav.contains(document.activeElement) && document.activeElement.matches(':focus-visible');
+const placeNav = () => {
+  const y = window.scrollY;
+  if (!phone.matches || keyboardInNav()) nav.classList.remove('nav-away');
+  else if (y > NAV_HIDE_BELOW) nav.classList.add('nav-away');
+  else if (y < NAV_SHOW_ABOVE) nav.classList.remove('nav-away');
+};
+let navFrame = 0;
 window.addEventListener('scroll', () => {
-  const y = window.scrollY, dy = y - navY;
   nav.classList.add('nav-auto');
-  if (!phone.matches || y < 40) { nav.classList.remove('nav-away'); navY = y; return; }
-  if (Math.abs(dy) < 8) return;
-  nav.classList.toggle('nav-away', dy > 0);
-  navY = y;
+  if (!navFrame) navFrame = requestAnimationFrame(() => { navFrame = 0; placeNav(); });
 }, { passive: true });
+window.addEventListener('resize', placeNav);
+phone.addEventListener?.('change', placeNav);
+placeNav(); // a reload part-way down the page
 nav.addEventListener('focusin', () => nav.classList.remove('nav-away'));
 
 document.addEventListener('keydown', (e) => {

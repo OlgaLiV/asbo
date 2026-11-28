@@ -41,12 +41,13 @@ test.describe('phone nav and the robot', () => {
         const overlaps = nav.bottom > robot.top && nav.top < robot.bottom;
         if (overlaps) expect(await navShown(page), `nav drawn over the robot at scroll ${y}`).toBe(false);
       }
-      // Scrolling back up brings the nav back, and it works
+      // Farther down it stays hidden, even after a small move back up near the bottom (Safari's bounce)
       if (max > 60) {
         await scrollPage(page, max);
         await scrollPage(page, max - 50);
-        expect(await navShown(page), 'nav returns on scroll up').toBe(true);
+        expect(await navShown(page), 'nav stays hidden near the bottom').toBe(false);
       }
+      // Back at the top it returns and works
       await scrollPage(page, 0);
       expect(await navShown(page)).toBe(true);
       await page.locator('.pillnav [data-open="work"]').click();
@@ -61,6 +62,95 @@ test.describe('phone nav and the robot', () => {
     expect(await navShown(page)).toBe(false);
     await page.locator('.pillnav [data-open="terminal"]').focus();
     expect(await navShown(page)).toBe(true);
+  });
+});
+
+// Real-device report (iPhone Safari, 2026-11-28): after fast swipes, and near the bottom, the nav came back over the
+// robot. It follows the page position, not the scroll direction: hidden once past the top area, back near the top.
+// Momentum and bounce can't be produced here; they are the same small back-and-forth scroll positions tested below.
+test.describe('phone nav follows the page position', () => {
+  test.beforeEach(async ({}, testInfo) => { test.skip(!isMobile(testInfo), 'phone layout only'); });
+  // every change of the nav's hidden state, in order
+  const watch = (page) => page.evaluate(() => {
+    const n = document.querySelector('.pillnav');
+    window.__nav = [];
+    let last = n.classList.contains('nav-away');
+    new MutationObserver(() => {
+      const away = n.classList.contains('nav-away');
+      if (away !== last) window.__nav.push(away);
+      last = away;
+    }).observe(n, { attributes: true, attributeFilter: ['class'] });
+  });
+  const changes = (page) => page.evaluate(() => window.__nav);
+  const maxScroll = (page) => page.evaluate(() => document.documentElement.scrollHeight - innerHeight);
+
+  test('slow scroll down: hides once past the top area and stays hidden down to the bottom', async ({ page }) => {
+    await gotoReady(page);
+    await watch(page);
+    const max = await maxScroll(page);
+    for (let y = 0; y <= max; y += 12) {
+      await scrollPage(page, y);
+      if (y > 48) expect(await navShown(page), `shown at ${y}`).toBe(false);
+    }
+    await scrollPage(page, max);
+    expect(await navShown(page), 'shown at the bottom').toBe(false);
+    expect(await changes(page)).toEqual([true]); // hid once, never came back
+  });
+
+  test('fast swipes, momentum and bounce at the bottom never bring it back', async ({ page }) => {
+    await gotoReady(page);
+    await watch(page);
+    const max = await maxScroll(page);
+    // a flick straight to the bottom, then the overshoot settling back and forth
+    for (const y of [max, max - 40, max, max - 12, max, max - 3, max]) {
+      await scrollPage(page, y);
+      expect(await navShown(page), `shown at ${y}`).toBe(false);
+    }
+    // a quick swipe back up that stops below the top area, then down again
+    for (const y of [Math.min(120, max), max, Math.min(60, max), max]) {
+      await scrollPage(page, y);
+      expect(await navShown(page), `shown at ${y}`).toBe(false);
+    }
+    expect(await changes(page)).toEqual([true]);
+  });
+
+  test('returning upward: it comes back near the top, once, without flickering at the edge', async ({ page }) => {
+    await gotoReady(page);
+    const max = await maxScroll(page);
+    await scrollPage(page, max);
+    await watch(page);
+    for (let y = max; y >= 30; y -= 15) {
+      await scrollPage(page, y);
+      expect(await navShown(page), `shown at ${y} on the way up`).toBe(false);
+    }
+    // hovering around the edge of the top area doesn't make it flicker
+    for (const y of [40, 30, 44, 28, 36]) await scrollPage(page, y);
+    expect(await changes(page)).toEqual([]);
+    await scrollPage(page, 10);
+    expect(await navShown(page)).toBe(true);
+    await scrollPage(page, 0);
+    expect(await changes(page)).toEqual([false]);
+    // and it hides again on the next scroll down
+    await scrollPage(page, 120);
+    expect(await navShown(page)).toBe(false);
+  });
+
+  test('a reload in the middle of the page starts with the nav hidden', async ({ page }) => {
+    await gotoReady(page);
+    await scrollPage(page, 200);
+    await page.reload();
+    await page.waitForFunction(() => document.documentElement.classList.contains('robot-in'));
+    await page.waitForTimeout(300);
+    test.skip(await page.evaluate(() => scrollY < 100), 'this browser does not restore the scroll position on reload');
+    expect(await navShown(page)).toBe(false);
+  });
+
+  test('with reduced motion it hides and returns without animating', async ({ page }) => {
+    await gotoReady(page); // reduced motion
+    await scrollPage(page, 200);
+    const t = await page.locator('.pillnav').evaluate((n) => getComputedStyle(n).transitionDuration);
+    expect(t.split(',').every((d) => parseFloat(d) === 0), t).toBe(true);
+    expect(await navShown(page)).toBe(false);
   });
 });
 
