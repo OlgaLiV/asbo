@@ -27,7 +27,7 @@ import path from 'node:path';
 
 const NAME = 'asbo-chat';
 const COMMIT = 'c402bf9';
-const LAUNCH_COMMIT = 'LAUNCH'; // set to the reviewed launch commit before `open`
+const LAUNCH_COMMIT = '81caa6b'; // set to the reviewed launch commit before `open`
 const URL_CHAT = 'https://asbo-chat.asboagent.workers.dev/chat';
 const ORIGIN = 'https://asboagent.com';
 const TOKEN_FILE = path.join(homedir(), '.config/asbo/asbo-test-token');

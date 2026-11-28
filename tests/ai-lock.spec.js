@@ -98,7 +98,7 @@ test.describe('protected-deploy scripts', () => {
     expect(s).toMatch(/'--dry-run'/);
     expect(s).toMatch(/names\.includes\('ANTHROPIC_API_KEY'\)\) fail\(/);
     // going live: the reviewed launch commit, open only through `open`, test token removed, a free check and a rollback
-    expect(s).toMatch(/const LAUNCH_COMMIT = '(LAUNCH|[0-9a-f]{7})'/); // LAUNCH until the launch commit exists
+    expect(s).toContain("const LAUNCH_COMMIT = '81caa6b'");
     expect(s).toContain("checkFiles(LAUNCH_COMMIT, 'open')");
     expect(s).toContain("'secret', 'delete', 'TEST_TOKEN'");
     expect(s).toContain("rmSync(TOKEN_FILE)");
