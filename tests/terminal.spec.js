@@ -87,3 +87,56 @@ test('suggestion chips get an answer', async ({ page }) => {
   await expect(panel(page, 'terminal')).toBeVisible();
   await expect(page.locator('.term-log .a').last()).not.toHaveText('');
 });
+
+// iPhone Safari pans the page while the keyboard is up (D7). Real keyboards can't be simulated here, so the page is
+// moved the same way while the terminal is open; closing must bring it back to where the visitor opened it.
+test.describe('closing returns the page to where the terminal was opened', () => {
+  const openers = {
+    'the >_ button by the logo': '.tool[data-open="terminal"]',
+    'the chat icon': '.pillnav [data-open="terminal"]',
+    'a suggested question': '.chip',
+    'the "click here" hint': '.hint [data-open="terminal"]',
+  };
+  const pan = (page) => page.evaluate(() => {
+    const max = document.documentElement.scrollHeight - innerHeight;
+    window.scrollTo(0, scrollY + 200 <= max ? Math.min(scrollY + 400, max) : Math.max(0, scrollY - 400));
+  });
+  for (const [name, sel] of Object.entries(openers)) {
+    for (const keyboard of ['open', 'dismissed']) {
+      test(`from ${name}, keyboard ${keyboard}`, async ({ page }, info) => {
+        test.skip(!isMobile(info), 'the desktop page fits one screen and does not scroll');
+        await gotoReady(page);
+        const opener = page.locator(sel).first();
+        await opener.evaluate((b) => b.scrollIntoView({ block: 'center' }));
+        await page.waitForTimeout(300);
+        const before = await page.evaluate(() => scrollY);
+        await opener.click();
+        await expect(panel(page, 'terminal')).toBeVisible();
+        await pan(page);
+        expect(await page.evaluate(() => scrollY), 'the simulated pan moved the page').not.toBe(before);
+        if (keyboard === 'dismissed') await page.evaluate(() => document.activeElement.blur());
+        await panel(page, 'terminal').locator('.close').click();
+        await expect(panel(page, 'terminal')).toBeHidden();
+        await page.waitForTimeout(500);
+        expect(Math.abs((await page.evaluate(() => scrollY)) - before)).toBeLessThanOrEqual(1);
+      });
+    }
+  }
+  test('also with Escape, and after a command opens another panel', async ({ page }) => {
+    await gotoReady(page);
+    const before = await page.evaluate(() => scrollY);
+    await page.locator('.tool[data-open="terminal"]').click();
+    await pan(page);
+    await page.keyboard.press('Escape');
+    await page.waitForTimeout(500);
+    expect(await page.evaluate(() => scrollY)).toBe(before);
+    await page.locator('.tool[data-open="terminal"]').click();
+    await pan(page);
+    await page.locator('#q').fill('/work');
+    await page.locator('#q').press('Enter');
+    await expect(panel(page, 'work')).toBeVisible();
+    await panel(page, 'work').locator('.close').click();
+    await page.waitForTimeout(500);
+    expect(await page.evaluate(() => scrollY)).toBe(before);
+  });
+});

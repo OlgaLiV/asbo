@@ -457,6 +457,16 @@ $('[data-form]').addEventListener('submit', (e) => { e.preventDefault(); ask(inp
 
 // ---------- Panels ----------
 let openPanel = null, lastFocus = null;
+// Where the page was when the first panel opened. iPhone Safari pans the page while the keyboard is up (D7), so
+// closing puts it back there instead of leaving it wherever the keyboard moved it.
+let pageScroll = null;
+const restoreScroll = ([x, y]) => {
+  const back = () => { if (!openPanel) window.scrollTo(x, y); };
+  back();
+  // the keyboard may still be closing and move the page once more
+  requestAnimationFrame(back);
+  setTimeout(back, 350);
+};
 // typing: put the cursor in the terminal input. A suggested question on a touch screen asks without it, so the
 // keyboard doesn't jump up over the answer; the visitor taps the input when they want to type.
 function open(name, { typing = true } = {}) {
@@ -464,6 +474,7 @@ function open(name, { typing = true } = {}) {
   const panel = $(`[data-panel="${name}"]`);
   if (!panel) return;
   lastFocus = document.activeElement;
+  if (!pageScroll) pageScroll = [window.scrollX, window.scrollY];
   panel.hidden = false;
   openPanel = panel;
   // Panels always open at the top (browsers would otherwise restore where the visitor left off)
@@ -477,7 +488,11 @@ function close(restore = true) {
   openPanel.hidden = true;
   openPanel = null;
   if (restore && fromPrivacy) { open('terminal', { typing: false }); $('.ai-note button').focus(); return; }
-  if (restore && lastFocus) lastFocus.focus();
+  if (!restore) return; // another panel is opening; the page position is restored when the last one closes
+  if (document.activeElement && document.activeElement !== document.body) document.activeElement.blur(); // keyboard down
+  if (lastFocus) lastFocus.focus({ preventScroll: true });
+  if (pageScroll) restoreScroll(pageScroll);
+  pageScroll = null;
 }
 $$('[data-open]').forEach((b) => b.addEventListener('click', () => open(b.dataset.open)));
 $$('[data-close]').forEach((b) => b.addEventListener('click', () => close()));
