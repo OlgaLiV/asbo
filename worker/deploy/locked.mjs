@@ -66,6 +66,16 @@ const checkFiles = (commit = COMMIT, access = 'closed') => {
   if (/^\s*(TEST_TOKEN|ANTHROPIC_API_KEY|VISITOR_SALT|INTERNAL_TERMS)\s*=/m.test(toml)) fail('a secret is written in wrangler.toml');
 };
 
+// The same reviewed config with only AI_ACCESS changed to "closed", written next to it for one wrangler run (rollback).
+const CLOSED_TOML = 'wrangler.closed.toml';
+const withClosedConfig = (args) => {
+  const toml = readFileSync('worker/wrangler.toml', 'utf8');
+  const closed = toml.replace(/^AI_ACCESS = "open"$/m, 'AI_ACCESS = "closed"');
+  if (!/^AI_ACCESS = "closed"$/m.test(closed)) fail('could not make the closed config');
+  writeFileSync(path.join('worker', CLOSED_TOML), closed);
+  try { return wrangler([...args, '--config', CLOSED_TOML]); } finally { rmSync(path.join('worker', CLOSED_TOML), { force: true }); }
+};
+
 const step = process.argv[2];
 
 if (step === 'status') {
@@ -76,7 +86,8 @@ if (step === 'status') {
 } else if (step === 'dry-run') {
   const launch = ['open', 'close'].includes(process.argv[3]);
   if (launch) checkFiles(LAUNCH_COMMIT, 'open'); else checkFiles();
-  const d = wrangler(['deploy', '--dry-run', '--outdir', path.join(homedir(), '.config/asbo/dry-run'), ...(process.argv[3] === 'close' ? ['--var', 'AI_ACCESS:closed'] : [])]);
+  const args = ['deploy', '--dry-run', '--outdir', path.join(homedir(), '.config/asbo/dry-run')];
+  const d = process.argv[3] === 'close' ? withClosedConfig(args) : wrangler(args);
   console.log(d.out.split('\n').filter((l) => /Total Upload|env\.|Durable|AI_ACCESS|ORIGINS|PRICES|MODEL|DAILY|MINUTE|dry-run/i.test(l)).join('\n'));
   if (!d.ok) fail('dry run failed');
   console.log(`dry run of ${launch ? LAUNCH_COMMIT : COMMIT}: files and settings as reviewed; nothing uploaded`);
@@ -165,7 +176,7 @@ if (step === 'status') {
   process.exitCode = bad ? 1 : 0;
 } else if (step === 'close') {
   checkFiles(LAUNCH_COMMIT, 'open'); // the same reviewed files, only the setting changes; if this stops, run kill
-  const d = wrangler(['deploy', '--var', 'AI_ACCESS:closed', '--message', 'rollback: closed']);
+  const d = withClosedConfig(['deploy', '--message', 'rollback: closed']);
   console.log(d.out.split('\n').filter((l) => /Uploaded|Deployed|Version ID|AI_ACCESS|https:/.test(l)).join('\n'));
   if (!d.ok) fail('deploy failed; run kill to stop the model at once');
   console.log('closed; next: check-closed');

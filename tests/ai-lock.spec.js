@@ -102,7 +102,8 @@ test.describe('protected-deploy scripts', () => {
     expect(s).toContain("checkFiles(LAUNCH_COMMIT, 'open')");
     expect(s).toContain("'secret', 'delete', 'TEST_TOKEN'");
     expect(s).toContain("rmSync(TOKEN_FILE)");
-    expect(s).toContain("['deploy', '--var', 'AI_ACCESS:closed'");
+    expect(s).toContain("withClosedConfig(['deploy', '--message', 'rollback: closed'])");
+    expect(s).toContain(`toml.replace(/^AI_ACCESS = "open"$/m, 'AI_ACCESS = "closed"')`);
     expect(s).toContain("'{\"message\":\"\"}'"); // check-open sends only empty questions: no model call
     const rt = fs.readFileSync('worker/deploy/realtest.mjs', 'utf8');
     expect(rt).toMatch(/if \(Q\.length !== 25\)/);
